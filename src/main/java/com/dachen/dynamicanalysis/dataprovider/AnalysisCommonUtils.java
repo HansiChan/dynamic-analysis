@@ -49,25 +49,6 @@ public class AnalysisCommonUtils {
             sql = "select distinct(if(" + dimension + " is null,\"未知\"," + dimension + ")) from kudu_db.ods_user";
         }
 
-        /*try {
-            conn = ImpalaUtil.getConnection();
-            stat = conn.createStatement();
-            rs = stat.executeQuery(sql);
-            while (rs.next()) {
-                String list = rs.getString(1).trim();
-                dList.add(list);
-            }
-
-        } catch (Exception e) {
-            throw new Exception("ERROR:" + e.getMessage(), e);
-        } finally {
-            try {
-                conn.close();
-                stat.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }*/
         try {
             conn = ImpalaUtil.getConnection();
             stat = conn.createStatement();
