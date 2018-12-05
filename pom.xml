@@ -20,10 +20,10 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<start-class>com.dachen.DynamicAnalysisApp</start-class>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
 	</properties>
-
+	
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -155,7 +155,6 @@
 			<version>1.0</version>
 			<scope>system</scope>
 			<systemPath>/data/program/cboardApi/lib/TCLIServiceClient.jar</systemPath>
-		</dependency>
 
 	</dependencies>
 
