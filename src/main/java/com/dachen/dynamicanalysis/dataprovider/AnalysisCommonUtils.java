@@ -6,7 +6,6 @@ import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.comparators.ComparableComparator;
 import org.apache.commons.collections4.ComparatorUtils;
 
-
 import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -50,6 +49,25 @@ public class AnalysisCommonUtils {
             sql = "select distinct(if(" + dimension + " is null,\"未知\"," + dimension + ")) from kudu_db.ods_user";
         }
 
+        /*try {
+            conn = ImpalaUtil.getConnection();
+            stat = conn.createStatement();
+            rs = stat.executeQuery(sql);
+            while (rs.next()) {
+                String list = rs.getString(1).trim();
+                dList.add(list);
+            }
+
+        } catch (Exception e) {
+            throw new Exception("ERROR:" + e.getMessage(), e);
+        } finally {
+            try {
+                conn.close();
+                stat.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }*/
         try {
             conn = ImpalaUtil.getConnection();
             stat = conn.createStatement();

@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.1.0.RELEASE</version>
+		<version>1.5.2.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
@@ -93,6 +93,20 @@
 			<version>2.7.0</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/com.facebook.presto/presto-jdbc -->
+		<dependency>
+			<groupId>com.facebook.presto</groupId>
+			<artifactId>presto-jdbc</artifactId>
+			<version>0.214</version>
+		</dependency>
+
+		<dependency>
+			<groupId>presto-jdbc</groupId>
+			<artifactId>presto-jdbc</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>D:/dynamic-analysis/lib/presto-jdbc-0.214.jar</systemPath>
+		</dependency>
 
 		<!-- impala -->
 		<dependency>
@@ -100,63 +114,63 @@
 			<artifactId>hive_metastore</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>E:/code/dynamic-analysis/lib/hive_metastore.jar</systemPath>
+			<systemPath>/data/program/cboardApi/lib/hive_metastore.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>hive_service</groupId>
 			<artifactId>hive_service</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>E:/code/dynamic-analysis/lib/hive_service.jar</systemPath>
+			<systemPath>/data/program/cboardApi/lib/hive_service.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>ImpalaJDBC4</groupId>
 			<artifactId>ImpalaJDBC4</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>E:/code/dynamic-analysis/lib/ImpalaJDBC4.jar</systemPath>
+			<systemPath>/data/program/cboardApi/lib/ImpalaJDBC4.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>libfb303</groupId>
 			<artifactId>libfb303</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>E:/code/dynamic-analysis/lib/libfb303-0.9.0.jar</systemPath>
+			<systemPath>/data/program/cboardApi/lib/libfb303-0.9.0.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>libthrift</groupId>
 			<artifactId>libthrift</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>E:/code/dynamic-analysis/lib/libthrift-0.9.0.jar</systemPath>
+			<systemPath>/data/program/cboardApi/lib/libthrift-0.9.0.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>ojdbc6</groupId>
 			<artifactId>ojdbc6</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>E:/code/dynamic-analysis/lib/ojdbc6.jar</systemPath>
+			<systemPath>/data/program/cboardApi/lib/ojdbc6.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>ql</groupId>
 			<artifactId>ql</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>E:/code/dynamic-analysis/lib/ql.jar</systemPath>
+			<systemPath>/data/program/cboardApi/lib/ql.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>sqljdbc4</groupId>
 			<artifactId>sqljdbc4</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>E:/code/dynamic-analysis/lib/sqljdbc4-4.0.jar</systemPath>
+			<systemPath>/data/program/cboardApi/lib/sqljdbc4-4.0.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>TCLIServiceClient</groupId>
 			<artifactId>TCLIServiceClient</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>E:/code/dynamic-analysis/lib/TCLIServiceClient.jar</systemPath>
+			<systemPath>/data/program/cboardApi/lib/TCLIServiceClient.jar</systemPath>
 		</dependency>
 
 	</dependencies>
@@ -166,8 +180,13 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<includeSystemScope>true</includeSystemScope>
+				</configuration>
 			</plugin>
 		</plugins>
+
+		<finalName>dynamic-analysis</finalName>
 	</build>
 
 </project>
