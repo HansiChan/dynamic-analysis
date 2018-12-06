@@ -205,6 +205,7 @@ public class DynamicAnalysisProvider {
         }
 
         Map<String, List> m = AnalysisCommonUtils.mapCombine(dtNameList);
+        if(!sqlWhere.contains(dimension)) {}
         for (Map.Entry<String, List> entry : m.entrySet()) {
             String dt = entry.getKey();
             List<String> nameList = entry.getValue();
@@ -227,9 +228,13 @@ public class DynamicAnalysisProvider {
             }
         }
 
+
         List<String> everyDateList = AnalysisCommonUtils.dateSplit(begin_date, end_date, dateSql);
         if ("hours".equals(dateSql)) {
             daysLen = 24;
+        }
+        if(!sqlWhere.contains(dimension)) {
+
         }
         if (voList.size() < daysLen * subLength) {
             for (String day : everyDateList) {

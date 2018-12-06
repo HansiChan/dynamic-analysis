@@ -92,6 +92,29 @@
 			<version>2.7.0</version>
 		</dependency>
 
+		<!-- log -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>1.7.22</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.22</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.7.22</version>
+		</dependency>
+		<!-- 具体的日志实现 -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+		</dependency>
+
 		<!-- impala -->
 		<dependency>
 			<groupId>hive_metastore</groupId>
@@ -156,6 +179,71 @@
 			<scope>system</scope>
 			<systemPath>/data/program/cboardApi/lib/TCLIServiceClient.jar</systemPath>
 		</dependency>
+
+		<!-- impala -->
+		<!--<dependency>
+			<groupId>hive_metastore</groupId>
+			<artifactId>hive_metastore</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>E:/code/dynamic-analysis/lib/hive_metastore.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>hive_service</groupId>
+			<artifactId>hive_service</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>E:/code/dynamic-analysis/lib/hive_service.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>ImpalaJDBC4</groupId>
+			<artifactId>ImpalaJDBC4</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>E:/code/dynamic-analysis/lib/ImpalaJDBC4.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>libfb303</groupId>
+			<artifactId>libfb303</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>E:/code/dynamic-analysis/lib/libfb303-0.9.0.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>libthrift</groupId>
+			<artifactId>libthrift</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>E:/code/dynamic-analysis/lib/libthrift-0.9.0.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>ojdbc6</groupId>
+			<artifactId>ojdbc6</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>E:/code/dynamic-analysis/lib/ojdbc6.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>ql</groupId>
+			<artifactId>ql</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>E:/code/dynamic-analysis/lib/ql.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>sqljdbc4</groupId>
+			<artifactId>sqljdbc4</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>E:/code/dynamic-analysis/lib/sqljdbc4-4.0.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>TCLIServiceClient</groupId>
+			<artifactId>TCLIServiceClient</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>E:/code/dynamic-analysis/lib/TCLIServiceClient.jar</systemPath>
+		</dependency>-->
 
 	</dependencies>
 
