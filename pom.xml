@@ -92,6 +92,7 @@
 			<version>2.7.0</version>
 		</dependency>
 
+
 		<!-- impala -->
 		<dependency>
 			<groupId>hive_metastore</groupId>
@@ -156,6 +157,7 @@
 			<scope>system</scope>
 			<systemPath>/data/program/cboardApi/lib/TCLIServiceClient.jar</systemPath>
 		</dependency>
+
 
 	</dependencies>
 
