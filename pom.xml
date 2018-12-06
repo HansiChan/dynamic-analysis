@@ -94,7 +94,7 @@
 
 
 		<!-- impala -->
-		<!--<dependency>
+		<dependency>
 			<groupId>hive_metastore</groupId>
 			<artifactId>hive_metastore</artifactId>
 			<version>1.0</version>
@@ -156,10 +156,10 @@
 			<version>1.0</version>
 			<scope>system</scope>
 			<systemPath>/data/program/cboardApi/lib/TCLIServiceClient.jar</systemPath>
-		</dependency>-->
+		</dependency>
 
 		<!-- impala -->
-		<dependency>
+		<!--<dependency>
 			<groupId>hive_metastore</groupId>
 			<artifactId>hive_metastore</artifactId>
 			<version>1.0</version>
@@ -221,7 +221,7 @@
 			<version>1.0</version>
 			<scope>system</scope>
 			<systemPath>E:/code/dynamic-analysis/lib/TCLIServiceClient.jar</systemPath>
-		</dependency>
+		</dependency>-->
 
 	</dependencies>
 
