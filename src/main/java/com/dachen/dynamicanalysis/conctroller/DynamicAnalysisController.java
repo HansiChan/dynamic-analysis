@@ -37,8 +37,8 @@ public class DynamicAnalysisController {
     }
 
     @RequestMapping("/dimensions")
-    public JSONMessage dimension() throws Exception {
-        Object list  = commonProvider.getDimensions();
+    public JSONMessage dimension(@RequestParam(name = "module", required = false) String module) throws Exception {
+        Object list  = commonProvider.getDimensions(module);
         return JSONMessage.success("Request success", list);
     }
 
