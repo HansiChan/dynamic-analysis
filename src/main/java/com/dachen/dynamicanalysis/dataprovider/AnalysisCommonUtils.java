@@ -30,7 +30,7 @@ public class AnalysisCommonUtils {
 
         String sql = "";
         if (null != dimension && dimension.length() > 0 && "level".equals(dimension)) {
-            sql = "select distinct(if(" + dimension + " is null,\"未知\",level)) from kudu_db.ods_b_hospital";
+            sql = "select distinct(if(" + dimension + " is null or " + dimension + "='' or " + dimension + "='NULL',\"未知\",level)) from kudu_db.ods_b_hospital";
         } else if (null != dimension && dimension.length() > 0 && "source_sourcetype".equals(dimension)) {
             sql = "select distinct((case when " + dimension + "='1' then 'APP注册' when " + dimension + "='2' then '集团邀请' when " + dimension + "='3' then '医院邀请' \n" +
                     "        when " + dimension + "='4' then '集团新建' when " + dimension + "='5' then '运营新建' when " + dimension + "='6' then '医院新建' when " + dimension + "='7' then '博德嘉联客户端注册' \n" +

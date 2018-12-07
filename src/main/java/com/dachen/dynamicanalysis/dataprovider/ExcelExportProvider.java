@@ -57,7 +57,7 @@ public class ExcelExportProvider {
                 row.createCell(0).setCellValue(firstCell.get(i));
                 for (int j = 0; j < secondCell.size(); j++) {
                     row.createCell(0 + j)
-                            .setCellValue(secondCell.get(j)
+                            .setCellValue(secondCell.get(j).replace("\"","")
                                     .replace("[", "").replace("]", "").split(",")[i]);
                 }
 
