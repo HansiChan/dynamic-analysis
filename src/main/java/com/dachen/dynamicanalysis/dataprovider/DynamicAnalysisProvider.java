@@ -204,7 +204,18 @@ public class DynamicAnalysisProvider {
             }
         }
 
+
         Map<String, List> m = AnalysisCommonUtils.mapCombine(dtNameList);
+        if (sqlWhere.contains(dimension)) {
+            int nameListSize = 0;
+            for (Map.Entry<String, List> entry : m.entrySet()) {
+                if (entry.getValue().size() > nameListSize) {
+                    nameListSize = entry.getValue().size();
+                    subString = (String[]) entry.getValue().toArray(new String[entry.getValue().size()]);
+                    subLength = subString.length;
+                }
+            }
+        }
         for (Map.Entry<String, List> entry : m.entrySet()) {
             String dt = entry.getKey();
             List<String> nameList = entry.getValue();
@@ -228,13 +239,14 @@ public class DynamicAnalysisProvider {
         }
 
 
+
         List<String> everyDateList = AnalysisCommonUtils.dateSplit(begin_date, end_date, dateSql);
         if ("hours".equals(dateSql)) {
             daysLen = 24;
         }
         if (voList.size() < daysLen * subLength) {
             for (String day : everyDateList) {
-                if (dtSet.contains(day) == false) {
+                if (!dtSet.contains(day)) {
                     for (String sub : subString) {
                         AnalysisVo vo2 = new AnalysisVo();
                         vo2.setDt(day);
