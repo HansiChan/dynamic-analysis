@@ -205,6 +205,16 @@ public class DynamicAnalysisProvider {
         }
 
         Map<String, List> m = AnalysisCommonUtils.mapCombine(dtNameList);
+        if (sqlWhere.contains(dimension)) {
+            int nameListSize = 0;
+            for (Map.Entry<String, List> entry : m.entrySet()) {
+                if (entry.getValue().size() > nameListSize) {
+                    nameListSize = entry.getValue().size();
+                    subString = (String[]) entry.getValue().toArray(new String[entry.getValue().size()]);
+                    subLength = subString.length;
+                }
+            }
+        }
         for (Map.Entry<String, List> entry : m.entrySet()) {
             String dt = entry.getKey();
             List<String> nameList = entry.getValue();
