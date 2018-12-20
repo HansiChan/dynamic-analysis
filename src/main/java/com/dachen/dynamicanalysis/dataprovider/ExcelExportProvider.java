@@ -56,7 +56,7 @@ public class ExcelExportProvider {
             if ("lines".equals(charType)) {
                 row.createCell(0).setCellValue(firstCell.get(i));
                 for (int j = 0; j < secondCell.size(); j++) {
-                    if(secondCell.get(i) == null) {
+                    if(secondCell.get(i) == null || "".equals(secondCell.get(i))) {
                         row.createCell(1 + j).setCellValue(Integer.parseInt(""));
                     }
                     row.createCell(1 + j)
