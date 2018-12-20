@@ -208,21 +208,23 @@ public class DynamicAnalysisProvider {
 
 
         Map<String, List> m = AnalysisCommonUtils.mapCombine(dtNameList);
-        if (sqlWhere.contains(dimension)) {
-            List nameList = new LinkedList();
-            for (Map.Entry<String, List> entry : m.entrySet()) {
-                for(Object value : entry.getValue()){
-                    if(!nameList.contains(value)){
-                        nameList.add(value);
+        if (dimension != null && !"".equals(dimension)) {
+            if (sqlWhere.contains(dimension)) {
+                List nameList = new LinkedList();
+                for (Map.Entry<String, List> entry : m.entrySet()) {
+                    for (Object value : entry.getValue()) {
+                        if (!nameList.contains(value)) {
+                            nameList.add(value);
+                        }
                     }
-                }
-                subString = (String[]) nameList.toArray(new String[nameList.size()]);
-                subLength = subString.length;
+                    subString = (String[]) nameList.toArray(new String[nameList.size()]);
+                    subLength = subString.length;
                 /*if (entry.getValue().size() > nameListSize) {
                     nameListSize = entry.getValue().size();
                     subString = (String[]) entry.getValue().toArray(new String[entry.getValue().size()]);
                     subLength = subString.length;
                 }*/
+                }
             }
         }
         for (Map.Entry<String, List> entry : m.entrySet()) {

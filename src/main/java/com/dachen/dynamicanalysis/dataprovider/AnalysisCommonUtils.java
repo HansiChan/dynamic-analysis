@@ -153,6 +153,7 @@ public class AnalysisCommonUtils {
 
             }
         }
+        dList =  removeDuplicate(dList);
         return dList;
     }
 
