@@ -58,10 +58,11 @@ public class ExcelExportProvider {
                 for (int j = 0; j < secondCell.size(); j++) {
                     if(secondCell.get(i) == null || "".equals(secondCell.get(i))) {
                         row.createCell(1 + j).setCellValue(Integer.parseInt(""));
+                    } else {
+                        row.createCell(1 + j)
+                                .setCellValue(Integer.parseInt(secondCell.get(j).replace("\"", "")
+                                        .replace("[", "").replace("]", "").split(",")[i]));
                     }
-                    row.createCell(1 + j)
-                            .setCellValue(Integer.parseInt(secondCell.get(j).replace("\"","")
-                                    .replace("[", "").replace("]", "").split(",")[i]));
                 }
 
             } else {
