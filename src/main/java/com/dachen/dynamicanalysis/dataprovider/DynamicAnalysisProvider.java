@@ -60,7 +60,8 @@ public class DynamicAnalysisProvider {
                     px = "";
                 }
             }
-            sql = "with t as " + sqlJoin + " select if(" + dimension + " is null,\"未知\"," + dimension + ") name,count(distinct(userid)) value from t "
+            sql = "with t as " + sqlJoin + " select if(" + dimension + " is null or " + dimension + "='' or " +
+                    dimension + "='NULL',\"未知\"," + dimension + ") name,count(distinct(userid)) value from t "
                     + sqlModule + sqlFilter + " group by " + dimension + " order by value desc limit 9 union all "
                     + "select '其他' name,nvl(sum(value),0) value from (select row_number() over(order by count(distinct(userid)) desc) id,if(" + dimension
                     + " is null,\"未知\"," + dimension + ") ,count(distinct(userid)) value from t " + sqlModule + st + " group by "
@@ -165,7 +166,8 @@ public class DynamicAnalysisProvider {
                 filter=dimension + " in (" + dimension_sub + ") and ";
             }*/
             sql = "with x as " + sqlJoin + "select dt,name,value from \n" +
-                    "(SELECT " + dateSql + " AS dt,if(" + dimension + " is null,\"未知\"," + dimension + ") AS name, count(distinct userid) AS value\n" +
+                    "(SELECT " + dateSql + " AS dt,if(" + dimension + " is null or " + dimension + "='' or " +
+                    dimension + "='NULL',\"未知\"," + dimension + ") AS name, count(distinct userid) AS value\n" +
                     " FROM x where days>='" + begin_date + "' and days<='"
                     + end_date + "'" + sqlWhere + "group by dt,name) z order by value desc ";
         }
