@@ -56,14 +56,14 @@ public class ExcelExportProvider {
             if ("lines".equals(charType)) {
                 row.createCell(0).setCellValue(firstCell.get(i));
                 for (int j = 0; j < secondCell.size(); j++) {
-                    row.createCell(0 + j)
-                            .setCellValue(secondCell.get(j).replace("\"","")
-                                    .replace("[", "").replace("]", "").split(",")[i]);
+                    row.createCell(1 + j)
+                            .setCellValue(Integer.parseInt(secondCell.get(j).replace("\"", "")
+                                    .replace("[", "").replace("]", "").split(",")[i]));
                 }
 
             } else {
                 row.createCell(0).setCellValue(firstCell.get(i));
-                row.createCell(1).setCellValue(secondCell.get(i));
+                row.createCell(1).setCellValue(Integer.parseInt(secondCell.get(i)));
             }
         }
 

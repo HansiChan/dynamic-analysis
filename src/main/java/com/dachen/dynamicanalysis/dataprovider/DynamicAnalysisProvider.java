@@ -60,7 +60,8 @@ public class DynamicAnalysisProvider {
                     px = "";
                 }
             }
-            sql = "with t as " + sqlJoin + " select if(" + dimension + " is null,\"未知\"," + dimension + ") name,count(distinct(userid)) value from t "
+            sql = "with t as " + sqlJoin + " select if(" + dimension + " is null or " + dimension + "='' or " +
+                    dimension + "='NULL',\"未知\"," + dimension + ") name,count(distinct(userid)) value from t "
                     + sqlModule + sqlFilter + " group by " + dimension + " order by value desc limit 9 union all "
                     + "select '其他' name,nvl(sum(value),0) value from (select row_number() over(order by count(distinct(userid)) desc) id,if(" + dimension
                     + " is null,\"未知\"," + dimension + ") ,count(distinct(userid)) value from t " + sqlModule + st + " group by "
@@ -165,7 +166,8 @@ public class DynamicAnalysisProvider {
                 filter=dimension + " in (" + dimension_sub + ") and ";
             }*/
             sql = "with x as " + sqlJoin + "select dt,name,value from \n" +
-                    "(SELECT " + dateSql + " AS dt,if(" + dimension + " is null,\"未知\"," + dimension + ") AS name, count(distinct userid) AS value\n" +
+                    "(SELECT " + dateSql + " AS dt,if(" + dimension + " is null or " + dimension + "='' or " +
+                    dimension + "='NULL',\"未知\"," + dimension + ") AS name, count(distinct userid) AS value\n" +
                     " FROM x where days>='" + begin_date + "' and days<='"
                     + end_date + "'" + sqlWhere + "group by dt,name) z order by value desc ";
         }
@@ -206,13 +208,22 @@ public class DynamicAnalysisProvider {
 
 
         Map<String, List> m = AnalysisCommonUtils.mapCombine(dtNameList);
-        if (sqlWhere.contains(dimension)) {
-            int nameListSize = 0;
-            for (Map.Entry<String, List> entry : m.entrySet()) {
-                if (entry.getValue().size() > nameListSize) {
+        if (dimension != null && !"".equals(dimension)) {
+            if (sqlWhere.contains(dimension)) {
+                List nameList = new LinkedList();
+                for (Map.Entry<String, List> entry : m.entrySet()) {
+                    for (Object value : entry.getValue()) {
+                        if (!nameList.contains(value)) {
+                            nameList.add(value);
+                        }
+                    }
+                    subString = (String[]) nameList.toArray(new String[nameList.size()]);
+                    subLength = subString.length;
+                /*if (entry.getValue().size() > nameListSize) {
                     nameListSize = entry.getValue().size();
                     subString = (String[]) entry.getValue().toArray(new String[entry.getValue().size()]);
                     subLength = subString.length;
+                }*/
                 }
             }
         }
