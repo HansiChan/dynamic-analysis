@@ -30,23 +30,23 @@ public class AnalysisCommonUtils {
 
         String sql = "";
         if (null != dimension && dimension.length() > 0 && "level".equals(dimension)) {
-            sql = "select distinct(if(" + dimension + " is null or " + dimension + "='' or " + dimension + "='NULL',\"未知\",level)) from kudu_db.ods_b_hospital";
+            sql = "select distinct(if(" + dimension + " is null or " + dimension + "='' or " + dimension + "='NULL',\"未知\",level)) from ods.ods_b_hospital";
         } else if (null != dimension && dimension.length() > 0 && "source_sourcetype".equals(dimension)) {
             sql = "select distinct((case when " + dimension + "='1' then 'APP注册' when " + dimension + "='2' then '集团邀请' when " + dimension + "='3' then '医院邀请' \n" +
                     "        when " + dimension + "='4' then '集团新建' when " + dimension + "='5' then '运营新建' when " + dimension + "='6' then '医院新建' when " + dimension + "='7' then '博德嘉联客户端注册' \n" +
                     "        when " + dimension + "='8' then '医生邀请' when " + dimension + "='9' then '微信用户注册' when " + dimension + "='10' then '博德嘉联医生助手邀请' when " + dimension + "='11' then '农牧项目批量导入' \n" +
                     "        when " + dimension + "='12' then '运营平台批量导入' when " + dimension + "='13' then '分享页面注册' when " + dimension + "='14' then '药店圈邀请' when " + dimension + "='15' then '第三方' \n" +
-                    "        when " + dimension + "='16' then '药企圈' when " + dimension + "='17' then '医生圈' when " + dimension + "='18' then '医生圈H5邀请加入圈子'  else '未知' end)) from kudu_db.ods_user";
+                    "        when " + dimension + "='16' then '药企圈' when " + dimension + "='17' then '医生圈' when " + dimension + "='18' then '医生圈H5邀请加入圈子'  else '未知' end)) from ods.ods_user";
         } else if (null != dimension && dimension.length() > 0 && "status".equals(dimension)) {
             sql = "select distinct((case when " + dimension + "='1' then '正常' when " + dimension + "='2' then '待审核' when " + dimension + "='3' then '审核未通过' when " + dimension + "='4' then '暂时禁用' when " + dimension + "='5' \n" +
-                    "       \tthen '永久禁用' when " + dimension + "='6' then '未激活' when " + dimension + "='7' then '未认证' when " + dimension + "='8' then '离职' when " + dimension + "='9' then '注销' else '未知' end)) from kudu_db.ods_user";
+                    "       \tthen '永久禁用' when " + dimension + "='6' then '未激活' when " + dimension + "='7' then '未认证' when " + dimension + "='8' then '离职' when " + dimension + "='9' then '注销' else '未知' end)) from ods.ods_user";
         } else if (null != dimension && dimension.length() > 0 && "userlevel".equals(dimension)) {
-            sql = "select distinct((case when " + dimension + "='0' then '到期' when " + dimension + "='1' then '游客' when " + dimension + "='2' then '临时用户' when " + dimension + "='3' then '认证用户' else '未知' end)) from kudu_db.ods_user";
+            sql = "select distinct((case when " + dimension + "='0' then '到期' when " + dimension + "='1' then '游客' when " + dimension + "='2' then '临时用户' when " + dimension + "='3' then '认证用户' else '未知' end)) from ods.ods_user";
         } else if (null != dimension && dimension.length() > 0 && "model".equals(dimension)) {
             dimension = "loginlog_model";
-            sql = "select distinct(if(" + dimension + " is null,\"未知\"," + dimension + ")) from kudu_db.ods_user";
+            sql = "select distinct(if(" + dimension + " is null,\"未知\"," + dimension + ")) from ods.ods_user";
         } else if (null != dimension && dimension.length() > 0) {
-            sql = "select distinct(if(" + dimension + " is null,\"未知\"," + dimension + ")) from kudu_db.ods_user";
+            sql = "select distinct(if(" + dimension + " is null,\"未知\"," + dimension + ")) from ods.ods_user";
         }
 
         try {
