@@ -5,6 +5,9 @@ import com.dachen.util.ImpalaUtil;
 import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.comparators.ComparableComparator;
 import org.apache.commons.collections4.ComparatorUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.RoundingMode;
 import java.sql.Connection;
@@ -19,58 +22,59 @@ import java.util.*;
 public class AnalysisCommonUtils {
 
     private static final String DATE_FORMAT_NORMAL = "yyyy-MM-dd";
+    private static final Logger logger = LoggerFactory.getLogger(AnalysisCommonUtils.class);
 
     static Connection conn = null;
     static Statement stat = null;
     static ResultSet rs = null;
 
-    public static Object filter(String dimension) throws Exception {
+    public static List<String> filter(String dimension) {
 
-        List<String> dList = new ArrayList<>();
-
-        String sql = "";
-        if (null != dimension && dimension.length() > 0 && "level".equals(dimension)) {
-            sql = "select distinct(if(" + dimension + " is null or " + dimension + "='' or " + dimension + "='NULL',\"未知\",level)) from ods.ods_b_hospital";
-        } else if (null != dimension && dimension.length() > 0 && "source_sourcetype".equals(dimension)) {
-            sql = "select distinct((case when " + dimension + "='1' then 'APP注册' when " + dimension + "='2' then '集团邀请' when " + dimension + "='3' then '医院邀请' \n" +
-                    "        when " + dimension + "='4' then '集团新建' when " + dimension + "='5' then '运营新建' when " + dimension + "='6' then '医院新建' when " + dimension + "='7' then '博德嘉联客户端注册' \n" +
-                    "        when " + dimension + "='8' then '医生邀请' when " + dimension + "='9' then '微信用户注册' when " + dimension + "='10' then '博德嘉联医生助手邀请' when " + dimension + "='11' then '农牧项目批量导入' \n" +
-                    "        when " + dimension + "='12' then '运营平台批量导入' when " + dimension + "='13' then '分享页面注册' when " + dimension + "='14' then '药店圈邀请' when " + dimension + "='15' then '第三方' \n" +
-                    "        when " + dimension + "='16' then '药企圈' when " + dimension + "='17' then '医生圈' when " + dimension + "='18' then '医生圈H5邀请加入圈子'  else '未知' end)) from ods.ods_user";
-        } else if (null != dimension && dimension.length() > 0 && "status".equals(dimension)) {
-            sql = "select distinct((case when " + dimension + "='1' then '正常' when " + dimension + "='2' then '待审核' when " + dimension + "='3' then '审核未通过' when " + dimension + "='4' then '暂时禁用' when " + dimension + "='5' \n" +
-                    "       \tthen '永久禁用' when " + dimension + "='6' then '未激活' when " + dimension + "='7' then '未认证' when " + dimension + "='8' then '离职' when " + dimension + "='9' then '注销' else '未知' end)) from ods.ods_user";
-        } else if (null != dimension && dimension.length() > 0 && "userlevel".equals(dimension)) {
-            sql = "select distinct((case when " + dimension + "='0' then '到期' when " + dimension + "='1' then '游客' when " + dimension + "='2' then '临时用户' when " + dimension + "='3' then '认证用户' else '未知' end)) from ods.ods_user";
-        } else if (null != dimension && dimension.length() > 0 && "model".equals(dimension)) {
-            dimension = "loginlog_model";
-            sql = "select distinct(if(" + dimension + " is null,\"未知\"," + dimension + ")) from ods.ods_user";
-        } else if (null != dimension && dimension.length() > 0) {
-            sql = "select distinct(if(" + dimension + " is null,\"未知\"," + dimension + ")) from ods.ods_user";
-        }
-
-        try {
+        String sql = "select dimtb,field from bds.bds_dimension_map where id='%s'";
+        sql = String.format(sql,dimension);
+        String tbname = "";
+        String field ="";
+        List<String> list = new LinkedList<>();
+        try{
             conn = ImpalaUtil.getConnection();
             stat = conn.createStatement();
             rs = stat.executeQuery(sql);
             while (rs.next()) {
-                String list = rs.getString(1).trim();
-                dList.add(list);
+                tbname = rs.getString(1);
+                field = rs.getString(2);
             }
-
-        } catch (Exception e) {
-            throw new Exception("ERROR:" + e.getMessage(), e);
+        }catch(Exception e){
+            logger.error("getClusterCount ERROR:{}",e.getMessage());
         } finally {
             try {
-                conn.close();
-                stat.close();
+                if(Objects.nonNull(conn)) conn.close();
+                if(Objects.nonNull(stat)) stat.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                logger.error("getClusterCount ERROR:{}",e.getMessage());
             }
         }
-        return dList;
+        String sql2 = "select %s from %s";
+        if("doctor_province".equals(dimension)|"level".equals(dimension)){sql2 = "select distinct %s from %S";}
+        sql2 = String.format(sql2,field,tbname);
+        try{
+                conn = ImpalaUtil.getConnection();
+            stat = conn.createStatement();
+            rs = stat.executeQuery(sql2);
+            while (rs.next()) {
+                list.add(rs.getString(1));
+            }
+        }catch(Exception e){
+            logger.error("getClusterCount ERROR:{}",e.getMessage());
+        } finally {
+            try {
+                if(Objects.nonNull(conn)) conn.close();
+                if(Objects.nonNull(stat)) stat.close();
+            } catch (SQLException e) {
+                logger.error("getClusterCount ERROR:{}",e.getMessage());
+            }
+        }
+        return list;
     }
-
 
     public static int getDayLength(String start_date, String end_date) throws Exception {
         Date fromDate = getStrToDate(start_date, DATE_FORMAT_NORMAL);
@@ -203,23 +207,4 @@ public class AnalysisCommonUtils {
         });
     }
 
-    public static String formatNumber(double value) {
-
-        NumberFormat nf = NumberFormat.getNumberInstance();
-        nf.setMaximumFractionDigits(2);
-        /*
-         * setMinimumFractionDigits设置成2
-         *
-         * 如果不这么做，那么当value的值是100.00的时候返回100
-         *
-         * 而不是100.00
-         */
-        nf.setMinimumFractionDigits(2);
-        nf.setRoundingMode(RoundingMode.HALF_UP);
-        /*
-         * 如果想输出的格式用逗号隔开，可以设置成true
-         */
-        nf.setGroupingUsed(false);
-        return nf.format(value);
-    }
 }

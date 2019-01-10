@@ -3,7 +3,6 @@ package com.dachen.dynamicanalysis.conctroller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dachen.dynamicanalysis.dataprovider.CommonDataProvider;
 import com.dachen.dynamicanalysis.service.ExcelExportService;
 import com.dachen.dynamicanalysis.service.ImpalaDataService;
 import com.dachen.util.JSONMessage;
@@ -21,32 +20,10 @@ import java.util.List;
 public class DynamicAnalysisController {
 
     @Autowired
-    private CommonDataProvider commonProvider;
-
-    @Autowired
     private ImpalaDataService dataService;
 
     @Autowired
     private ExcelExportService excelService;
-
-    @RequestMapping("/indexes")
-    public JSONMessage index() {
-
-        Object list  = commonProvider.getIndexes();
-        return JSONMessage.success("Request success", list);
-    }
-
-    @RequestMapping("/dimensions")
-    public JSONMessage dimension(@RequestParam(name = "module", required = false) String module) throws Exception {
-        Object list  = commonProvider.getDimensions(module);
-        return JSONMessage.success("Request success", list);
-    }
-
-    @RequestMapping("/filter")
-    public JSONMessage filter(@RequestParam(name = "dimension", required = false) String dimension) throws Exception {
-        Object res = dataService.filter(dimension);
-        return JSONMessage.success("Request success", res);
-    }
 
     @RequestMapping(value = "/query")
     public JSONMessage query(@RequestParam(name = "module") String module,
