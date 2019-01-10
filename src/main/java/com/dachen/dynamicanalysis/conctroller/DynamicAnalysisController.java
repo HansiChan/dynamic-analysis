@@ -78,13 +78,13 @@ public class DynamicAnalysisController {
 
         String sqlTable = "";
         if ("active".equals(module)) {
-            sqlTable = "dw_user_login";
+            sqlTable = "dw_user_login_r";
         } else if ("new".equals(module)) {
-            sqlTable = "dw_user_register";
+            sqlTable = "dw_user_register_r";
         } else if ("authenticating".equals(module)) {
-            sqlTable = "dw_user_certify";
+            sqlTable = "dw_user_certify_r";
         } else if ("authenticated".equals(module)) {
-            sqlTable = "dw_user_check";
+            sqlTable = "dw_user_check_r";
             sqlWhere = sqlWhere + " and status='正常'";
         }
 
