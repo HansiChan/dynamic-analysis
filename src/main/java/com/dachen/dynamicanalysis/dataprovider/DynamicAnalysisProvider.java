@@ -154,9 +154,8 @@ public class DynamicAnalysisProvider {
                     + "' and days<='" + end_date + "'" + sqlWhere + "group by dt,name order by value desc";
         } else {
             /*String filter="";*/
-            subLength = AnalysisCommonUtils.filter(dimension).toString().split(",").length;
-            subString = AnalysisCommonUtils.filter(dimension).toString().replace("[", "")
-                    .replace("]", "").replace(" ", "").split(",");
+            subLength = AnalysisCommonUtils.filter(dimension).size();
+            subString = AnalysisCommonUtils.filter(dimension).toArray(new String[AnalysisCommonUtils.filter(dimension).size()]);
             /*if (dimension_sub != null && !"".equals(dimension_sub)) {
                 dimension_sub = "'" + dimension_sub.replace(",", "','") + "'";
             } else {

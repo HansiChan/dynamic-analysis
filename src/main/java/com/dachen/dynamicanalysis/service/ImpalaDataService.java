@@ -1,6 +1,5 @@
 package com.dachen.dynamicanalysis.service;
 
-import com.dachen.dynamicanalysis.dataprovider.AnalysisCommonUtils;
 import com.dachen.dynamicanalysis.dataprovider.DynamicAnalysisProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,10 +15,6 @@ public class ImpalaDataService {
         return proMap;
     }
 
-    public Object filter(String dimension) throws Exception {
-        Object filter = AnalysisCommonUtils.filter(dimension);
-        return filter;
-    }
 
     public Object queryLineChart(String module, String dimension, String dimension_sub, String begin_date, String end_date, String dateSql, String sqlWhere, String sqlJoin) throws Exception {
         Object vo = dynamicProvider.getActiveLineChart(module, dimension, dimension_sub, begin_date, end_date, dateSql, sqlWhere, sqlJoin);
