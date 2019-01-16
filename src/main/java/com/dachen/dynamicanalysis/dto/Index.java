@@ -9,7 +9,7 @@ public enum  Index {
     NEW("新增用户数", "new"),
     ACTIVE("活跃用戶数", "active"),
     AUTHENTICATING("提交认证用户数", "authenticating"),
-    AUTHENTICATED("认证通过用户数", "authenticated");
+    AUTHENTICATED("认证通过用户数", "autenticated");
 
     private String name;
     private String index;
