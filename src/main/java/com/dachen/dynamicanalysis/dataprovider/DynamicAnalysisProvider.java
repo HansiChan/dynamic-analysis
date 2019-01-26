@@ -35,6 +35,7 @@ public class DynamicAnalysisProvider {
         String sqlFilter = "";
         String sql = "";
         String sqlModule = " where days>='" + begin_date + "' and days<='" + end_date + "' ";
+        int subLength = AnalysisCommonUtils.filter(dimension).size();
 
         if (null != module && module.length() > 0 && "authenticated".equals(module)
                 && null != begin_date && null != end_date && begin_date.length() > 0 && end_date.length() > 0) {
@@ -60,12 +61,18 @@ public class DynamicAnalysisProvider {
                     px = "";
                 }
             }
-            sql = "with t as " + sqlJoin + " select if(" + dimension + " is null or " + dimension + "='' or " +
-                    dimension + "='NULL',\"未知\"," + dimension + ") name,count(distinct(userid)) value from t "
-                    + sqlModule + sqlFilter + " group by " + dimension + " order by value desc limit 9 union all "
-                    + "select '其他' name,nvl(sum(value),0) value from (select row_number() over(order by count(distinct(userid)) desc) id,if(" + dimension
-                    + " is null,\"未知\"," + dimension + ") ,count(distinct(userid)) value from t " + sqlModule + st + " group by "
-                    + dimension + " order by value desc) as x " + px;
+            if (subLength<10) {
+                sql = "with t as " + sqlJoin + " select if(" + dimension + " is null or " + dimension + "='' or " +
+                        dimension + "='NULL',\"未知\"," + dimension + ") name,count(distinct(userid)) value from t "
+                        + sqlModule + sqlFilter + " group by " + dimension + " order by value desc";
+            } else {
+                sql = "with t as " + sqlJoin + " select if(" + dimension + " is null or " + dimension + "='' or " +
+                        dimension + "='NULL',\"未知\"," + dimension + ") name,count(distinct(userid)) value from t "
+                        + sqlModule + sqlFilter + " group by " + dimension + " order by value desc limit 9 union all "
+                        + "select '其他' name,nvl(sum(value),0) value from (select row_number() over(order by count(distinct(userid)) desc) id,if(" + dimension
+                        + " is null,\"未知\"," + dimension + ") ,count(distinct(userid)) value from t " + sqlModule + st + " group by "
+                        + dimension + " order by value desc) as x " + px;
+            }
         }
 
         try {

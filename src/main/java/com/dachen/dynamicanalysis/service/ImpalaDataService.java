@@ -15,7 +15,6 @@ public class ImpalaDataService {
         return proMap;
     }
 
-
     public Object queryLineChart(String module, String dimension, String dimension_sub, String begin_date, String end_date, String dateSql, String sqlWhere, String sqlJoin) throws Exception {
         Object vo = dynamicProvider.getActiveLineChart(module, dimension, dimension_sub, begin_date, end_date, dateSql, sqlWhere, sqlJoin);
         return vo;
