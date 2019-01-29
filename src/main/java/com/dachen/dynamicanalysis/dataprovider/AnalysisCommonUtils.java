@@ -51,7 +51,7 @@ public class AnalysisCommonUtils {
             }
         }
         String sql2 = "select %s from %s";
-        if("doctor_province".equals(dimension)|"level".equals(dimension)){sql2 = "select distinct %s from %S";}
+        if("doctor_province".equals(dimension)|"hospital_level".equals(dimension)){sql2 = "select distinct %s from %S";}
         sql2 = String.format(sql2,field,tbname);
         try{
                 conn = ImpalaUtil.getConnection();
