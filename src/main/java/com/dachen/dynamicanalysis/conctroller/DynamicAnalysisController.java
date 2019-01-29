@@ -62,7 +62,7 @@ public class DynamicAnalysisController {
             sqlTable = "dw_user_certify_r";
         } else if ("autenticated".equals(module)) {
             sqlTable = "dw_user_check_r";
-            sqlWhere = sqlWhere + " and status='正常(审核通过)'";
+            sqlWhere = sqlWhere + " and checkstatus='正常(审核通过)'";
         }
 
         String sqlJoin = "(select * from dw."+sqlTable+")";

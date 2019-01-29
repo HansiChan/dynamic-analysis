@@ -39,7 +39,7 @@ public class DynamicAnalysisProvider {
 
         if (null != module && module.length() > 0 && "authenticated".equals(module)
                 && null != begin_date && null != end_date && begin_date.length() > 0 && end_date.length() > 0) {
-            sqlModule = " where x.days>='" + begin_date + "' and x.days<='" + end_date + "' and status='正常'";
+            sqlModule = " where x.days>='" + begin_date + "' and x.days<='" + end_date + "' and checkstatus='正常(审核通过)'";
         }
 
         if (null != filter_condition && filter_condition.length() > 0) {
