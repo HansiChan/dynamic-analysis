@@ -9,7 +9,7 @@ import java.sql.SQLException;
 @Component
 public final class ImpalaUtil {
     private static String driver = "com.cloudera.impala.jdbc4.Driver";
-    private static String url = "jdbc:impala://ns:21050/pro";
+    private static String url = "jdbc:impala://nn:21050/pro";
     private static String user = "";
     private static String password = "";
 
