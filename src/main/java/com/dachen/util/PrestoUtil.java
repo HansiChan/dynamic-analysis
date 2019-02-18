@@ -1,20 +1,16 @@
 package com.dachen.util;
 
-import org.springframework.stereotype.Component;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-@Component
-public final class ImpalaUtil {
-    private static String driver = "com.cloudera.impala.jdbc4.Driver";
-    private static String url = "jdbc:impala://ns:21050/pro";
-    private static String user = "";
+public class PrestoUtil {
+    private static String driver = "com.facebook.presto.jdbc.PrestoDriver";
+    private static String url = "jdbc:presto://ns:8080/hive/pro";
+    private static String user = "root";
     private static String password = "";
 
-    private ImpalaUtil() {
-    }
+    private PrestoUtil(){}
 
     static {
         /**
