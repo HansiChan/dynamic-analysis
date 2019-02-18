@@ -7,6 +7,7 @@ import com.dachen.dynamicanalysis.pojo.AnalysisVo;
 import com.dachen.util.ImpalaUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
@@ -18,13 +19,10 @@ import java.util.*;
 @Repository
 public class DynamicAnalysisProvider {
     Logger LOG = LoggerFactory.getLogger(this.getClass());
-
-//    @Autowired
-//    ImpalaUtil conn;
-
-    Connection conn = null;
-    Statement stat = null;
-    ResultSet rs = null;
+    @Autowired
+    AnalysisCommonUtils analysisCommonUtils;
+    @Autowired
+	ImpalaUtil impalaUtil;
 
     public Object proportion(String module, String dimension, String dimension_sub,
                              String filter_condition, String begin_date, String end_date, String sqlJoin) throws Exception {
@@ -35,7 +33,7 @@ public class DynamicAnalysisProvider {
         String sqlFilter = "";
         String sql = "";
         String sqlModule = " where days>='" + begin_date + "' and days<='" + end_date + "' ";
-        int subLength = AnalysisCommonUtils.filter(dimension).size();
+        int subLength = analysisCommonUtils.filter(dimension).size();
 
         if (null != module && module.length() > 0 && "authenticated".equals(module)
                 && null != begin_date && null != end_date && begin_date.length() > 0 && end_date.length() > 0) {
@@ -75,9 +73,12 @@ public class DynamicAnalysisProvider {
             }
         }
 
+        Connection conn = null;
+        Statement stat = null;
+        ResultSet rs = null;
         try {
             LOG.info(sql);
-            conn = ImpalaUtil.getConnection();
+            conn = impalaUtil.getConnection();
             stat = conn.createStatement();
             rs = stat.executeQuery(sql);
 
@@ -161,8 +162,8 @@ public class DynamicAnalysisProvider {
                     + "' and days<='" + end_date + "'" + sqlWhere + "group by dt,name order by value desc";
         } else {
             /*String filter="";*/
-            subLength = AnalysisCommonUtils.filter(dimension).size();
-            subString = AnalysisCommonUtils.filter(dimension).toArray(new String[AnalysisCommonUtils.filter(dimension).size()]);
+            subLength = analysisCommonUtils.filter(dimension).size();
+            subString = analysisCommonUtils.filter(dimension).toArray(new String[analysisCommonUtils.filter(dimension).size()]);
             /*if (dimension_sub != null && !"".equals(dimension_sub)) {
                 dimension_sub = "'" + dimension_sub.replace(",", "','") + "'";
             } else {
@@ -181,10 +182,12 @@ public class DynamicAnalysisProvider {
         List<AnalysisVo> voList = new ArrayList<>();
         List<Map> dtNameList = new ArrayList<>();
         Set<String> dtSet = new HashSet<>();
-
+        Connection conn = null;
+        Statement stat = null;
+        ResultSet rs = null;
         try {
             LOG.info(sql);
-            conn = ImpalaUtil.getConnection();
+            conn = impalaUtil.getConnection();
             stat = conn.createStatement();
             rs = stat.executeQuery(sql);
             while (rs.next()) {

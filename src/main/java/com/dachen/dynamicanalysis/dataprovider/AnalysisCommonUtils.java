@@ -7,6 +7,8 @@ import org.apache.commons.collections.comparators.ComparableComparator;
 import org.apache.commons.collections4.ComparatorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -16,24 +18,27 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+@Component
 public class AnalysisCommonUtils {
 
     private static final String DATE_FORMAT_NORMAL = "yyyy-MM-dd";
     private static final Logger logger = LoggerFactory.getLogger(AnalysisCommonUtils.class);
 
-    static Connection conn = null;
-    static Statement stat = null;
-    static ResultSet rs = null;
+    @Autowired
+	ImpalaUtil impalaUtil;
 
-    public static List<String> filter(String dimension) {
+    public List<String> filter(String dimension) {
 
         String sql = "select dimtb,field from bds.bds_dimension_map where id='%s'";
         sql = String.format(sql,dimension);
         String tbname = "";
         String field ="";
         List<String> list = new LinkedList<>();
+		Connection conn = null;
+		Statement stat = null;
+		ResultSet rs = null;
         try{
-            conn = ImpalaUtil.getConnection();
+            conn = impalaUtil.getConnection();
             stat = conn.createStatement();
             rs = stat.executeQuery(sql);
             while (rs.next()) {
@@ -54,7 +59,7 @@ public class AnalysisCommonUtils {
         if("doctor_province".equals(dimension)|"hospital_level".equals(dimension)){sql2 = "select distinct %s from %S";}
         sql2 = String.format(sql2,field,tbname);
         try{
-                conn = ImpalaUtil.getConnection();
+                conn = impalaUtil.getConnection();
             stat = conn.createStatement();
             rs = stat.executeQuery(sql2);
             while (rs.next()) {
