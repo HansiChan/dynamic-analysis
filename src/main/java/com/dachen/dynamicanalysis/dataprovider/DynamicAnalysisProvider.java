@@ -61,11 +61,11 @@ public class DynamicAnalysisProvider {
             }
             if (subLength<10) {
                 sql = "with t as " + sqlJoin + " select if(" + dimension + " is null or " + dimension + "='' or " +
-                        dimension + "='NULL',\"其他\"," + dimension + ") name,count(distinct(userid)) value from t "
+                        dimension + " in ('NULL','未知'),\"其他\"," + dimension + ") name,count(distinct(userid)) value from t "
                         + sqlModule + sqlFilter + " group by " + dimension + " order by value desc";
             } else {
                 sql = "with t as " + sqlJoin + " select if(" + dimension + " is null or " + dimension + "='' or " +
-                        dimension + "='NULL',\"其他\"," + dimension + ") name,count(distinct(userid)) value from t "
+                        dimension + " in ('NULL','未知'),\"其他\"," + dimension + ") name,count(distinct(userid)) value from t "
                         + sqlModule + sqlFilter + " group by " + dimension + " order by value desc limit 9 union all "
                         + "select '其他' name,nvl(sum(value),0) value from (select row_number() over(order by count(distinct(userid)) desc) id,if(" + dimension
                         + " is null,\"其他\"," + dimension + ") ,count(distinct(userid)) value from t " + sqlModule + st + " group by "
@@ -174,7 +174,7 @@ public class DynamicAnalysisProvider {
             }*/
             sql = "with x as " + sqlJoin + "select dt,name,value from \n" +
                     "(SELECT " + dateSql + " AS dt,if(" + dimension + " is null or " + dimension + "='' or " +
-                    dimension + "='NULL',\"其他\"," + dimension + ") AS name, count(distinct userid) AS value\n" +
+                    dimension + " in ('NULL','未知'),\"其他\"," + dimension + ") AS name, count(distinct userid) AS value\n" +
                     " FROM x where days>='" + begin_date + "' and days<='"
                     + end_date + "'" + sqlWhere + "group by dt,name) z order by value desc ";
         }
@@ -190,7 +190,7 @@ public class DynamicAnalysisProvider {
             conn = impalaUtil.getConnection();
             stat = conn.createStatement();
             rs = stat.executeQuery(sql);
-            while (rs.next()) {
+                while (rs.next()) {
                 AnalysisVo vo2 = new AnalysisVo();
                 Map<String, String> map = new HashMap<>();
                 String dt = rs.getString(1);
@@ -215,7 +215,7 @@ public class DynamicAnalysisProvider {
             }
         }
 
-
+        //
         Map<String, List> m = AnalysisCommonUtils.mapCombine(dtNameList);
         if (dimension != null && !"".equals(dimension)) {
             if (sqlWhere.contains(dimension)) {
