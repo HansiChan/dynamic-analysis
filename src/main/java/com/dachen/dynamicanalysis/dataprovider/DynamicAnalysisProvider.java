@@ -47,7 +47,7 @@ public class DynamicAnalysisProvider {
         if (null != dimension_sub && dimension_sub.length() > 0) {
             String sqlTSub = "and " + dimension + " in ('" + dimension_sub.replace(",", "','") + "')";
             String sqlFSub = "and " + dimension + " not in ('" + dimension_sub.replace(",", "','") + "')";
-            sql = "with t as " + sqlJoin + "select if(" + dimension + " is null,\"未知\"," + dimension + ") ,count(distinct(userid)) value from t "
+            sql = "with t as " + sqlJoin + "select if(" + dimension + " is null,\"其他\"," + dimension + ") ,count(distinct(userid)) value from t "
                     + sqlModule + sqlFilter + sqlTSub + " group by " + dimension + " order by value desc union all select '其他',count(distinct(userid)) value from t "
                     + sqlModule + sqlFilter + sqlFSub;
         } else {
@@ -61,14 +61,14 @@ public class DynamicAnalysisProvider {
             }
             if (subLength<10) {
                 sql = "with t as " + sqlJoin + " select if(" + dimension + " is null or " + dimension + "='' or " +
-                        dimension + "='NULL',\"未知\"," + dimension + ") name,count(distinct(userid)) value from t "
+                        dimension + "='NULL',\"其他\"," + dimension + ") name,count(distinct(userid)) value from t "
                         + sqlModule + sqlFilter + " group by " + dimension + " order by value desc";
             } else {
                 sql = "with t as " + sqlJoin + " select if(" + dimension + " is null or " + dimension + "='' or " +
-                        dimension + "='NULL',\"未知\"," + dimension + ") name,count(distinct(userid)) value from t "
+                        dimension + "='NULL',\"其他\"," + dimension + ") name,count(distinct(userid)) value from t "
                         + sqlModule + sqlFilter + " group by " + dimension + " order by value desc limit 9 union all "
                         + "select '其他' name,nvl(sum(value),0) value from (select row_number() over(order by count(distinct(userid)) desc) id,if(" + dimension
-                        + " is null,\"未知\"," + dimension + ") ,count(distinct(userid)) value from t " + sqlModule + st + " group by "
+                        + " is null,\"其他\"," + dimension + ") ,count(distinct(userid)) value from t " + sqlModule + st + " group by "
                         + dimension + " order by value desc) as x " + px;
             }
         }
@@ -158,7 +158,7 @@ public class DynamicAnalysisProvider {
             module = Index.getName(module);
             subString = new String[]{module};
             sql = "with x as " + sqlJoin + "select " + dateSql + " as dt," +
-                    "if('" + module + "' is null,\"未知\",'" + module + "') as name,count(distinct userid)  as value from x where days>='" + begin_date
+                    "if('" + module + "' is null,\"其他\",'" + module + "') as name,count(distinct userid)  as value from x where days>='" + begin_date
                     + "' and days<='" + end_date + "'" + sqlWhere + "group by dt,name order by value desc";
         } else {
             /*String filter="";*/
@@ -174,7 +174,7 @@ public class DynamicAnalysisProvider {
             }*/
             sql = "with x as " + sqlJoin + "select dt,name,value from \n" +
                     "(SELECT " + dateSql + " AS dt,if(" + dimension + " is null or " + dimension + "='' or " +
-                    dimension + "='NULL',\"未知\"," + dimension + ") AS name, count(distinct userid) AS value\n" +
+                    dimension + "='NULL',\"其他\"," + dimension + ") AS name, count(distinct userid) AS value\n" +
                     " FROM x where days>='" + begin_date + "' and days<='"
                     + end_date + "'" + sqlWhere + "group by dt,name) z order by value desc ";
         }
