@@ -42,6 +42,10 @@ public class DynamicAnalysisProvider {
 
         if (null != filter_condition && filter_condition.length() > 0) {
             sqlFilter = filter_condition.replace("where", "and");
+            if(filter_condition.contains("其他")){
+                String x =filter_condition.split(" ")[1];
+                sqlFilter = sqlFilter + "and " + x + " in ('','NULL') or " + x + " is null ";
+            }
         }
 
         if (null != dimension_sub && dimension_sub.length() > 0) {
