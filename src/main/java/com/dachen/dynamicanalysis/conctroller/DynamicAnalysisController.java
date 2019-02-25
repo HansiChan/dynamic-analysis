@@ -50,13 +50,13 @@ public class DynamicAnalysisController {
         }
         String sqlWhere = "";
         if (!"".equals(filter_condition) && filter_condition != null) {
-            sqlWhere = sqlWhere + filter_condition.replace("where", "and (") + ") ";
+            sqlWhere = sqlWhere + filter_condition.replace("where", " and (") + ") ";
             if(filter_condition.contains("其他")){
                 String x =filter_condition.split(" ")[1];
-                sqlWhere = sqlWhere + "and (" + x + " in ('','NULL') or " + x + " is null) ";
+                sqlWhere = filter_condition.replace("where"," and (").replace("'其他'","'','NULL','未知'")+ " or " + x + " is null) ";
             }else if(filter_condition.contains("无")){
                 String x =filter_condition.split(" ")[1];
-                sqlWhere = filter_condition.replace("where", "and (") + " or " + x + " is null" + ") ";
+                sqlWhere = filter_condition.replace("where", " and (") + " or " + x + " is null" + ") ";
             }
         }
 
