@@ -30,7 +30,7 @@ public class ImpalaUtil {
          * 驱动注册
          */
         try {
-            Class.forName("com.cloudera.impala.jdbc4.Driver");
+            Class.forName("com.cloudera.impala.jdbc41.Driver");
         } catch (ClassNotFoundException e) {
             throw new ExceptionInInitializerError(e);
         }
