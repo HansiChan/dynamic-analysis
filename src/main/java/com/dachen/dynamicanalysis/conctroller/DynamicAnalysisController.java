@@ -79,7 +79,7 @@ public class DynamicAnalysisController {
         if (chartType == "lines" || "lines".equals(chartType)) {
             res = dataService.queryLineChart(module, dimension, dimension_sub, begin_date, end_date, dateSql, sqlWhere, sqlJoin);
         } else if (chartType == "pie" || "pie".equals(chartType)) {
-            res = dataService.proportion(module, dimension, dimension_sub, filter_condition, begin_date, end_date, sqlJoin,sqlTable);
+            res = dataService.proportion(module, dimension, dimension_sub, filter_condition, begin_date, end_date, sqlJoin,"dw."+sqlTable);
         }
         return JSONMessage.success("Request success", res);
     }
