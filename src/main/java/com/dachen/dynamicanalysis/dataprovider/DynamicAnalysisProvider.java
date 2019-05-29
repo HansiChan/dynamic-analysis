@@ -63,9 +63,9 @@ public class DynamicAnalysisProvider {
             /*sql = "with t as " + sqlJoin + "select if(" + dimension + " is null,\"其他\"," + dimension + ") ,count(distinct(userid)) value from t "
                     + sqlModule + sqlFilter + sqlTSub + " group by " + dimension + " order by value desc union all select '其他',count(distinct(userid)) value from t "
                     + sqlModule + sqlFilter + sqlFSub;*/
-            sql = "with t as " + "(select  row_number() over (order by count(distinct userid) desc) rn ,dimension,count(distinct(userid)) value from "+sqlTable
+            sql = "with t as " + "(select  row_number() over (order by count(distinct userid) desc) rn ,"+dimension+",count(distinct(userid)) value from "+sqlTable
                 	+ sqlModule + sqlFilter + sqlTSub + " group by " + dimension + " order by value desc)"
-                	+"select dimension, value from "+sqlTable+" where rn <= 10 "
+                	+"select "+dimension+", value from t where rn <= 10 "
                 	+" union all select '其它', sum(value) from t where rn>10";
         } else {
             String st = sqlFilter;
@@ -82,7 +82,7 @@ public class DynamicAnalysisProvider {
                         + sqlModule + sqlFilter + " group by " + dimension + " order by value desc";*/
             	 sql = "with t as " + "(select  row_number() over (order by count(distinct userid) desc) rn ,dimension,count(distinct(userid)) value from "+sqlTable
             			 + sqlModule + sqlFilter + " group by " + dimension + " order by value desc)"
-                     	+"select dimension, value from "+sqlTable+" where rn <= 10 "
+            			 +"select "+dimension+", value from t where rn <= 10 "
                      	+" union all select '其它', sum(value) from t where rn>10";
             	
             } else {
@@ -94,8 +94,8 @@ public class DynamicAnalysisProvider {
                         + dimension + " order by value desc) as x " + px;*/
                 sql = "with t as " + "(select  row_number() over (order by count(distinct userid) desc) rn ,dimension,count(distinct(userid)) value from "+sqlTable
            			 + sqlModule + sqlFilter + " group by " + dimension + " order by value desc)"
-                    	+"select dimension, value from "+sqlTable+" where rn <= 10 "
-                    	+" union all select '其它', sum(value) from t where rn>10";
+           			 +"select "+dimension+", value from t where rn <= 10 "
+                     +" union all select '其它', sum(value) from t where rn>10";
             }
         }
 
