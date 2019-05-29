@@ -80,7 +80,7 @@ public class DynamicAnalysisProvider {
                 /*sql = "with t as " + sqlJoin + " select if(" + dimension + " is null or " + dimension + "='' or " +
                         dimension + " in ('NULL','未知'),\"其他\"," + dimension + ") name,count(distinct(userid)) value from t "
                         + sqlModule + sqlFilter + " group by " + dimension + " order by value desc";*/
-            	 sql = "with t as " + "(select  row_number() over (order by count(distinct userid) desc) rn ,dimension,count(distinct(userid)) value from "+sqlTable
+            	 sql = "with t as " + "(select  row_number() over (order by count(distinct userid) desc) rn ,"+dimension+",count(distinct(userid)) value from "+sqlTable
             			 + sqlModule + sqlFilter + " group by " + dimension + " order by value desc)"
             			 +"select "+dimension+", value from t where rn <= 10 "
                      	+" union all select '其它', sum(value) from t where rn>10";
@@ -92,7 +92,7 @@ public class DynamicAnalysisProvider {
                         + "select '其他' name,nvl(sum(value),0) value from (select row_number() over(order by count(distinct(userid)) desc) id,if(" + dimension
                         + " is null,\"其他\"," + dimension + ") ,count(distinct(userid)) value from t " + sqlModule + st + " group by "
                         + dimension + " order by value desc) as x " + px;*/
-                sql = "with t as " + "(select  row_number() over (order by count(distinct userid) desc) rn ,dimension,count(distinct(userid)) value from "+sqlTable
+                sql = "with t as " + "(select  row_number() over (order by count(distinct userid) desc) rn ,"+dimension+",count(distinct(userid)) value from "+sqlTable
            			 + sqlModule + sqlFilter + " group by " + dimension + " order by value desc)"
            			 +"select "+dimension+", value from t where rn <= 10 "
                      +" union all select '其它', sum(value) from t where rn>10";
