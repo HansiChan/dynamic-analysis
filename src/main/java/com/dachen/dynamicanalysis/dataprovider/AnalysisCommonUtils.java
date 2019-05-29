@@ -174,7 +174,7 @@ public class AnalysisCommonUtils {
         int week = cl.get(Calendar.WEEK_OF_YEAR);
         cl.add(Calendar.DAY_OF_MONTH, -7);
         int year = cl.get(Calendar.YEAR);
-        return year + "-" + week;
+        return year + "-" + (week<10?"0"+week:week);
     }
 
     public static Map mapCombine(List<Map> list) {
