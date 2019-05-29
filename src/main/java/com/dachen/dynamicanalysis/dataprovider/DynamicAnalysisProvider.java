@@ -1,10 +1,15 @@
 package com.dachen.dynamicanalysis.dataprovider;
 
+import com.dachen.dynamicanalysis.dto.GroupCount;
 import com.dachen.dynamicanalysis.dto.Index;
 import com.dachen.dynamicanalysis.pojo.AnalysisLineChartVo;
 import com.dachen.dynamicanalysis.pojo.AnalysisListVo;
 import com.dachen.dynamicanalysis.pojo.AnalysisVo;
 import com.dachen.util.ImpalaUtil;
+import com.google.common.collect.Lists;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 public class DynamicAnalysisProvider {
@@ -25,7 +31,7 @@ public class DynamicAnalysisProvider {
 	ImpalaUtil impalaUtil;
 
     public Object proportion(String module, String dimension, String dimension_sub,
-                             String filter_condition, String begin_date, String end_date, String sqlJoin) throws Exception {
+                             String filter_condition, String begin_date, String end_date, String sqlJoin,String sqlTable) throws Exception {
 
         Map<String, Object> aList = new LinkedHashMap<>();
         List<Object> sList = new LinkedList<>();
@@ -54,9 +60,13 @@ public class DynamicAnalysisProvider {
         if (null != dimension_sub && dimension_sub.length() > 0) {
             String sqlTSub = "and " + dimension + " in ('" + dimension_sub.replace(",", "','") + "')";
             String sqlFSub = "and " + dimension + " not in ('" + dimension_sub.replace(",", "','") + "')";
-            sql = "with t as " + sqlJoin + "select if(" + dimension + " is null,\"其他\"," + dimension + ") ,count(distinct(userid)) value from t "
+            /*sql = "with t as " + sqlJoin + "select if(" + dimension + " is null,\"其他\"," + dimension + ") ,count(distinct(userid)) value from t "
                     + sqlModule + sqlFilter + sqlTSub + " group by " + dimension + " order by value desc union all select '其他',count(distinct(userid)) value from t "
-                    + sqlModule + sqlFilter + sqlFSub;
+                    + sqlModule + sqlFilter + sqlFSub;*/
+            sql = "with t as " + "(select  row_number() over (order by count(distinct userid) desc) rn ,dimension,count(distinct(userid)) value from "+sqlTable
+                	+ sqlModule + sqlFilter + sqlTSub + " group by " + dimension + " order by value desc)"
+                	+"select dimension, value from "+sqlTable+" where rn <= 10 "
+                	+" union all select '其它', sum(value) from t where rn>10";
         } else {
             String st = sqlFilter;
             String px = "where id>9";
@@ -67,16 +77,25 @@ public class DynamicAnalysisProvider {
                 }
             }
             if (subLength<10) {
-                sql = "with t as " + sqlJoin + " select if(" + dimension + " is null or " + dimension + "='' or " +
+                /*sql = "with t as " + sqlJoin + " select if(" + dimension + " is null or " + dimension + "='' or " +
                         dimension + " in ('NULL','未知'),\"其他\"," + dimension + ") name,count(distinct(userid)) value from t "
-                        + sqlModule + sqlFilter + " group by " + dimension + " order by value desc";
+                        + sqlModule + sqlFilter + " group by " + dimension + " order by value desc";*/
+            	 sql = "with t as " + "(select  row_number() over (order by count(distinct userid) desc) rn ,dimension,count(distinct(userid)) value from "+sqlTable
+            			 + sqlModule + sqlFilter + " group by " + dimension + " order by value desc)"
+                     	+"select dimension, value from "+sqlTable+" where rn <= 10 "
+                     	+" union all select '其它', sum(value) from t where rn>10";
+            	
             } else {
-                sql = "with t as " + sqlJoin + " select if(" + dimension + " is null or " + dimension + "='' or " +
+                /*sql = "with t as " + sqlJoin + " select if(" + dimension + " is null or " + dimension + "='' or " +
                         dimension + " in ('NULL','未知'),\"其他\"," + dimension + ") name,count(distinct(userid)) value from t "
                         + sqlModule + sqlFilter + " group by " + dimension + " order by value desc limit 9 union all "
                         + "select '其他' name,nvl(sum(value),0) value from (select row_number() over(order by count(distinct(userid)) desc) id,if(" + dimension
                         + " is null,\"其他\"," + dimension + ") ,count(distinct(userid)) value from t " + sqlModule + st + " group by "
-                        + dimension + " order by value desc) as x " + px;
+                        + dimension + " order by value desc) as x " + px;*/
+                sql = "with t as " + "(select  row_number() over (order by count(distinct userid) desc) rn ,dimension,count(distinct(userid)) value from "+sqlTable
+           			 + sqlModule + sqlFilter + " group by " + dimension + " order by value desc)"
+                    	+"select dimension, value from "+sqlTable+" where rn <= 10 "
+                    	+" union all select '其它', sum(value) from t where rn>10";
             }
         }
 
@@ -88,18 +107,67 @@ public class DynamicAnalysisProvider {
             conn = impalaUtil.getConnection();
             stat = conn.createStatement();
             rs = stat.executeQuery(sql);
-
+            
+            List<GroupCount> groupList = Lists.newArrayList();
+            List<GroupCount> groupNoNList = Lists.newArrayList();
             while (rs.next()) {
-                Map<String, Object> nMap = new LinkedHashMap<>();
+            	
+            	GroupCount gc = new GroupCount();
+	        	gc.setName(rs.getString(1));
+	        	gc.setCount(rs.getLong(2));
+	        	groupList.add(gc);
+            }
+            
+            if(!CollectionUtils.isEmpty(groupList)){
+    			List<GroupCount> groupNullList = groupList.stream().filter(g->StringUtils.isEmpty(g.getName())).collect(Collectors.toList());
+    			if(!CollectionUtils.isEmpty(groupNullList)){
+    				//合并
+    				groupNullList = groupList.stream().filter(g->StringUtils.isEmpty(g.getName()) || Objects.equals(g.getName(),"其它")).collect(Collectors.toList());
+    				groupNoNList = groupList.stream().filter(g-> !StringUtils.isEmpty(g.getName()) && !Objects.equals(g.getName(),"其它")).collect(Collectors.toList());
+    				GroupCount tempGroupCount = new GroupCount();
+    				tempGroupCount.setName("其它");
+    				Long tempCount = 0L;
+    				for(GroupCount g : groupNullList){
+    					if(Objects.nonNull(g.getCount())){
+    						tempCount+=g.getCount();
+    					}
+    				}
+    				tempGroupCount.setCount(tempCount);
+    				groupNoNList.add(tempGroupCount);
+    			}else{
+    				if(groupList.size()>10){
+    					Long tempCount = 0L;
+    					for(int i=0;i<groupList.size();i++){
+    						if(i<9){
+    							groupNoNList.add(groupList.get(i));
+    						}else{
+    							if(Objects.nonNull(groupList.get(i).getCount())){
+    								tempCount+=groupList.get(i).getCount();
+    							}
+    						}
+    					}
+    					GroupCount tempGroupCount = new GroupCount();
+    					tempGroupCount.setName("其它");
+    					tempGroupCount.setCount(tempCount);
+    					groupNoNList.add(tempGroupCount);
+    				}else{
+    					groupNoNList = groupList;
+    				}
+    			}
+    		}
+            groupNoNList.forEach(g->{
+            	Map<String, Object> nMap = new LinkedHashMap<>();
                 List<String> nList = new LinkedList<>();
                 List<String> vList = new LinkedList<>();
-                nList.add(rs.getString(1).trim());
+                nList.add(g.getName());
                 nList.add(dimension);
-                vList.add(rs.getString(2).trim());
+                vList.add(g.getCount().toString());
                 nMap.put("names", nList);
                 nMap.put("value", vList);
                 sList.add(nMap);
-            }
+    			
+    		});
+            
 
         } catch (Exception e) {
             throw new Exception("ERROR:" + e.getMessage(), e);
