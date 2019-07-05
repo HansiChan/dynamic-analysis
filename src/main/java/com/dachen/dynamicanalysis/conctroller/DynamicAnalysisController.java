@@ -34,7 +34,8 @@ public class DynamicAnalysisController {
                              @RequestParam(name = "filter_condition", required = false) String filter_condition,
                              @RequestParam(name = "dimension_date", required = false) String dimension_date,
                              @RequestParam(name = "begin_date", required = false) String begin_date,
-                             @RequestParam(name = "end_date", required = false) String end_date
+                             @RequestParam(name = "end_date", required = false) String end_date,
+                             @RequestParam(name = "product", required = false) String product
     ) throws Exception {
 
         String dateSql = "";
@@ -77,9 +78,9 @@ public class DynamicAnalysisController {
 
         Object res = null;
         if (chartType == "lines" || "lines".equals(chartType)) {
-            res = dataService.queryLineChart(module, dimension, dimension_sub, begin_date, end_date, dateSql, sqlWhere, sqlJoin);
+            res = dataService.queryLineChart(module, dimension, dimension_sub, begin_date, end_date, dateSql, sqlWhere, sqlJoin,product);
         } else if (chartType == "pie" || "pie".equals(chartType)) {
-            res = dataService.proportion(module, dimension, dimension_sub, filter_condition, begin_date, end_date, sqlJoin,"dw."+sqlTable);
+            res = dataService.proportion(module, dimension, dimension_sub, filter_condition, begin_date, end_date, sqlJoin,"dw."+sqlTable,product);
         }
         return JSONMessage.success("Request success", res);
     }

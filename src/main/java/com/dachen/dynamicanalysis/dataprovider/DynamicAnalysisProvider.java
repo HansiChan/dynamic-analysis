@@ -31,19 +31,19 @@ public class DynamicAnalysisProvider {
 	ImpalaUtil impalaUtil;
 
     public Object proportion(String module, String dimension, String dimension_sub,
-                             String filter_condition, String begin_date, String end_date, String sqlJoin,String sqlTable) throws Exception {
+                             String filter_condition, String begin_date, String end_date, String sqlJoin,String sqlTable,String product) throws Exception {
 
         Map<String, Object> aList = new LinkedHashMap<>();
         List<Object> sList = new LinkedList<>();
 
         String sqlFilter = "";
         String sql = "";
-        String sqlModule = " where days>='" + begin_date + "' and days<='" + end_date + "' ";
+        String sqlModule = " where product='"+product+"'"+" and days>='" + begin_date + "' and days<='" + end_date + "' ";
         int subLength = analysisCommonUtils.filter(dimension).size();
 
         if (null != module && module.length() > 0 && "authenticated".equals(module)
                 && null != begin_date && null != end_date && begin_date.length() > 0 && end_date.length() > 0) {
-            sqlModule = " where x.days>='" + begin_date + "' and x.days<='" + end_date + "' and checkstatus='正常(审核通过)'";
+            sqlModule = " where x.product='"+product+"'"+" and x.days>='" + begin_date + "' and x.days<='" + end_date + "' and checkstatus='正常(审核通过)'";
         }
 
         if (null != filter_condition && filter_condition.length() > 0) {
@@ -187,7 +187,7 @@ public class DynamicAnalysisProvider {
     }
 
     public Object getActiveLineChart(String module, String dimension, String dimension_sub, String begin_date,
-                                     String end_date, String dateSql, String sqlWhere, String sqlJoin) throws Exception {
+                                     String end_date, String dateSql, String sqlWhere, String sqlJoin,String product) throws Exception {
         String sql = "";
         int daysLen = AnalysisCommonUtils.getDayLength(begin_date, end_date);
         int subLength = 1;
@@ -233,7 +233,7 @@ public class DynamicAnalysisProvider {
             module = Index.getName(module);
             subString = new String[]{module};
             sql = "with x as " + sqlJoin + "select " + dateSql + " as dt," +
-                    "if('" + module + "' is null,\"其他\",'" + module + "') as name,count(distinct userid)  as value from x where days>='" + begin_date
+                    "if('" + module + "' is null,\"其他\",'" + module + "') as name,count(distinct userid)  as value from x where product='"+product+"'"+" and days>='" + begin_date
                     + "' and days<='" + end_date + "'" + sqlWhere + "group by dt,name order by value desc";
         } else {
             /*String filter="";*/
@@ -250,7 +250,7 @@ public class DynamicAnalysisProvider {
             sql = "with x as " + sqlJoin + "select dt,name,value from \n" +
                     "(SELECT " + dateSql + " AS dt,if(" + dimension + " is null or " + dimension + "='' or " +
                     dimension + " in ('NULL','未知'),\"其他\"," + dimension + ") AS name, count(distinct userid) AS value\n" +
-                    " FROM x where days>='" + begin_date + "' and days<='"
+                    " FROM x where product='"+product+"'"+" and days>='" + begin_date + "' and days<='"
                     + end_date + "'" + sqlWhere + "group by dt,name) z order by value desc ";
         }
 
