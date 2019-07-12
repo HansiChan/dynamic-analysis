@@ -31,7 +31,7 @@ public class DynamicAnalysisProvider {
 	ImpalaUtil impalaUtil;
 
     public Object proportion(String module, String dimension, String dimension_sub,
-                             String filter_condition, String begin_date, String end_date, String sqlJoin,String sqlTable,String product) throws Exception {
+                             String filter_condition, String begin_date, String end_date, String sqlJoin,String sqlTable11,String product,String cluster) throws Exception {
 
         Map<String, Object> aList = new LinkedHashMap<>();
         List<Object> sList = new LinkedList<>();
@@ -41,9 +41,9 @@ public class DynamicAnalysisProvider {
         String sqlModule = " where product='"+product+"'"+" and days>='" + begin_date + "' and days<='" + end_date + "' ";
         int subLength = analysisCommonUtils.filter(dimension).size();
 
-        if (null != module && module.length() > 0 && "authenticated".equals(module)
+        if (null != module && module.length() > 0 && "autenticated".equals(module)
                 && null != begin_date && null != end_date && begin_date.length() > 0 && end_date.length() > 0) {
-            sqlModule = " where x.product='"+product+"'"+" and x.days>='" + begin_date + "' and x.days<='" + end_date + "' and checkstatus='正常(审核通过)'";
+            sqlModule = " where product='"+product+"'"+" and days>='" + begin_date + "' and days<='" + end_date + "' and checkstatus='正常(审核通过)'";
         }
 
         if (null != filter_condition && filter_condition.length() > 0) {
@@ -63,7 +63,7 @@ public class DynamicAnalysisProvider {
             /*sql = "with t as " + sqlJoin + "select if(" + dimension + " is null,\"其他\"," + dimension + ") ,count(distinct(userid)) value from t "
                     + sqlModule + sqlFilter + sqlTSub + " group by " + dimension + " order by value desc union all select '其他',count(distinct(userid)) value from t "
                     + sqlModule + sqlFilter + sqlFSub;*/
-            sql = "with t as " + "(select  row_number() over (order by count(distinct userid) desc) rn ,"+dimension+",count(distinct(userid)) value from "+sqlTable
+            sql = "with t as " + "(select  row_number() over (order by count(distinct userid) desc) rn ,"+dimension+",count(distinct(userid)) value from "+sqlJoin+" tt"
                 	+ sqlModule + sqlFilter + sqlTSub + " group by " + dimension + " order by value desc)"
                 	+"select "+dimension+", value from t where rn <= 10 "
                 	+" union all select '其它', sum(value) from t where rn>10";
@@ -80,7 +80,7 @@ public class DynamicAnalysisProvider {
                 /*sql = "with t as " + sqlJoin + " select if(" + dimension + " is null or " + dimension + "='' or " +
                         dimension + " in ('NULL','未知'),\"其他\"," + dimension + ") name,count(distinct(userid)) value from t "
                         + sqlModule + sqlFilter + " group by " + dimension + " order by value desc";*/
-            	 sql = "with t as " + "(select  row_number() over (order by count(distinct userid) desc) rn ,"+dimension+",count(distinct(userid)) value from "+sqlTable
+            	 sql = "with t as " + "(select  row_number() over (order by count(distinct userid) desc) rn ,"+dimension+",count(distinct(userid)) value from "+sqlJoin+" tt"
             			 + sqlModule + sqlFilter + " group by " + dimension + " order by value desc)"
             			 +"select "+dimension+", value from t where rn <= 10 "
                      	+" union all select '其它', sum(value) from t where rn>10";
@@ -92,7 +92,7 @@ public class DynamicAnalysisProvider {
                         + "select '其他' name,nvl(sum(value),0) value from (select row_number() over(order by count(distinct(userid)) desc) id,if(" + dimension
                         + " is null,\"其他\"," + dimension + ") ,count(distinct(userid)) value from t " + sqlModule + st + " group by "
                         + dimension + " order by value desc) as x " + px;*/
-                sql = "with t as " + "(select  row_number() over (order by count(distinct userid) desc) rn ,"+dimension+",count(distinct(userid)) value from "+sqlTable
+                sql = "with t as " + "(select  row_number() over (order by count(distinct userid) desc) rn ,"+dimension+",count(distinct(userid)) value from "+sqlJoin+" tt"
            			 + sqlModule + sqlFilter + " group by " + dimension + " order by value desc)"
            			 +"select "+dimension+", value from t where rn <= 10 "
                      +" union all select '其它', sum(value) from t where rn>10";
@@ -187,7 +187,7 @@ public class DynamicAnalysisProvider {
     }
 
     public Object getActiveLineChart(String module, String dimension, String dimension_sub, String begin_date,
-                                     String end_date, String dateSql, String sqlWhere, String sqlJoin,String product) throws Exception {
+                                     String end_date, String dateSql, String sqlWhere, String sqlJoin,String product,String cluster) throws Exception {
         String sql = "";
         int daysLen = AnalysisCommonUtils.getDayLength(begin_date, end_date);
         int subLength = 1;

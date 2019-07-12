@@ -3,9 +3,13 @@ package com.dachen.dynamicanalysis.conctroller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dachen.dynamicanalysis.exception.ServiceException;
 import com.dachen.dynamicanalysis.service.ExcelExportService;
 import com.dachen.dynamicanalysis.service.ImpalaDataService;
 import com.dachen.util.JSONMessage;
+import com.dachen.util.PinYinUtil;
+
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,8 +39,10 @@ public class DynamicAnalysisController {
                              @RequestParam(name = "dimension_date", required = false) String dimension_date,
                              @RequestParam(name = "begin_date", required = false) String begin_date,
                              @RequestParam(name = "end_date", required = false) String end_date,
-                             @RequestParam(name = "product", required = false) String product
+                             @RequestParam(name = "product", required = false) String product,
+                             @RequestParam(name = "cluster", required = false) String cluster
     ) throws Exception {
+    	if(StringUtils.isEmpty(product)) throw new ServiceException("产品为空");
 
         String dateSql = "";
         if ("hour".equals(dimension_date)) {
@@ -73,14 +79,30 @@ public class DynamicAnalysisController {
             sqlWhere = sqlWhere + " and checkstatus='正常(审核通过)'";
         }
 
-        String sqlJoin = "(select * from dw."+sqlTable+")";
+        StringBuffer sqlJoin = new StringBuffer();
+        sqlJoin.append("(select d.* from dw.").append(sqlTable).append(" d");
+        
+        /* String sqlJoin = "(select * from dw."+sqlTable+")";  select * from dw.dw_user_check_r*/
+        
+        
+        if(StringUtils.isNotEmpty(cluster)){
+        	 String pName = PinYinUtil.getFullSpell(cluster);
+        	 sqlJoin.append(" join (");
+        	 sqlJoin.append(" select DISTINCT userid from bds.bds_user_profile where 1=1 and p_name='").append(pName).append("'");
+        	 sqlJoin.append(" ) ").append(pName).append(" on d.userid = ").append(pName).append(".").append("userid ");
+        }
+        sqlJoin.append(")");
+        
 
 
         Object res = null;
         if (chartType == "lines" || "lines".equals(chartType)) {
-            res = dataService.queryLineChart(module, dimension, dimension_sub, begin_date, end_date, dateSql, sqlWhere, sqlJoin,product);
+            res = dataService.queryLineChart(module, dimension, dimension_sub, begin_date, end_date, dateSql, sqlWhere, sqlJoin.toString(),product,cluster);
         } else if (chartType == "pie" || "pie".equals(chartType)) {
-            res = dataService.proportion(module, dimension, dimension_sub, filter_condition, begin_date, end_date, sqlJoin,"dw."+sqlTable,product);
+        	if(StringUtils.isEmpty(dimension)){
+        		throw new ServiceException("维度为空!");
+        	}
+            res = dataService.proportion(module, dimension, dimension_sub, filter_condition, begin_date, end_date, sqlJoin.toString(),"dw."+sqlTable,product,cluster);
         }
         return JSONMessage.success("Request success", res);
     }
