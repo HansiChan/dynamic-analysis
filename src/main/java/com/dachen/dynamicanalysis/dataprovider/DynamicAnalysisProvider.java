@@ -1,5 +1,6 @@
 package com.dachen.dynamicanalysis.dataprovider;
 
+import com.alibaba.fastjson.JSON;
 import com.dachen.dynamicanalysis.dto.GroupCount;
 import com.dachen.dynamicanalysis.dto.Index;
 import com.dachen.dynamicanalysis.pojo.AnalysisLineChartVo;
@@ -9,12 +10,12 @@ import com.dachen.util.ImpalaUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -193,73 +194,21 @@ public class DynamicAnalysisProvider {
                                      String end_date, String dateSql, String sqlWhere, String sqlJoin,String product,String cluster) throws Exception {
         String sql = "";
         int daysLen = AnalysisCommonUtils.getDayLength(begin_date, end_date);
-        int subLength = 1;
-        String[] subString = {module};
-
-        /*if(dimension == null || "".equals(dimension)){
-            if ("active".equals(module)) {
-                module="活跃用户数";
-            } else if ("new".equals(module)) {
-                module="活跃用户数";
-            } else if ("authenticating".equals(module)) {
-                module="提交认证用户数";
-            } else if ("authenticated".equals(module)) {
-                module="认证通过用户数";
-            }
-        } else {
-            subLength = filter(dimension).toString().split(",").length;
-            subString = filter(dimension).toString().replace("[", "")
-                    .replace("]", "").replace(" ", "").split(",");
-        }
-
-
-        if (dimension_sub != null && !"".equals(dimension_sub)) {
-            dimension_sub = "'" + dimension_sub.replace(",", "','") + "'";
-        } else {
-            dimension_sub = "'" + String.join(",", subString).replace(",", "','").trim() + "'";
-        }
-
-        if (dimension == null || "".equals(dimension)) {
-            sql = "with x as " + sqlJoin + "select " + dateSql + " as dt,'" +
-                    "" + module + "' as name,count(distinct userid)  as value from x where days>='" + begin_date
-                    + "' and days<='" + end_date + "'" + sqlWhere + "group by dt,name order by value desc";
-        } else {
-            String filter="";
-            if(!sqlWhere.contains(dimension)) {filter=dimension + " in (" + dimension_sub + ") and ";}
-            sql = "with x as " + sqlJoin + "select dt,name,value from \n" +
-                    "(SELECT " + dateSql + " AS dt," + dimension + " AS name, count(distinct userid) AS value\n" +
-                    " FROM x where " + filter +" days>='" + begin_date + "' and days<='"
-                    + end_date + "'" + sqlWhere + "group by dt,name) z order by value desc ";
-        }*/
-
+        List<String> dimensionList = Lists.newArrayList();
         if (dimension == null || "".equals(dimension)) {
             module = Index.getName(module);
-            subString = new String[]{module};
             sql = "with x as " + sqlJoin + "select " + dateSql + " as dt," +
                     "if('" + module + "' is null,\"其他\",'" + module + "') as name,count(distinct userid)  as value from x where product='"+product+"'"+" and days>='" + begin_date
                     + "' and days<='" + end_date + "'" + sqlWhere + "group by dt,name order by value desc";
         } else {
-            /*String filter="";*/
-            subLength = analysisCommonUtils.filter(dimension).size();
-            subString = analysisCommonUtils.filter(dimension).toArray(new String[analysisCommonUtils.filter(dimension).size()]);
-            /*if (dimension_sub != null && !"".equals(dimension_sub)) {
-                dimension_sub = "'" + dimension_sub.replace(",", "','") + "'";
-            } else {
-                dimension_sub = "'" + String.join(",", subString).replace(",", "','").trim() + "'";
-            }
-            if(!sqlWhere.contains(dimension)) {
-                filter=dimension + " in (" + dimension_sub + ") and ";
-            }*/
+        	dimensionList = analysisCommonUtils.filter(dimension);
             sql = "with x as " + sqlJoin + "select dt,name,value from \n" +
                     "(SELECT " + dateSql + " AS dt,if(" + dimension + " is null or " + dimension + "='' or " +
                     dimension + " in ('NULL','未知'),\"其他\"," + dimension + ") AS name, count(distinct userid) AS value\n" +
                     " FROM x where product='"+product+"'"+" and days>='" + begin_date + "' and days<='"
                     + end_date + "'" + sqlWhere + "group by dt,name) z order by value desc ";
         }
-
-        List<AnalysisVo> voList = new ArrayList<>();
-        List<Map> dtNameList = new ArrayList<>();
-        Set<String> dtSet = new HashSet<>();
+        List<Map<String,String>> resultList = new ArrayList<Map<String,String>>();
         Connection conn = null;
         Statement stat = null;
         ResultSet rs = null;
@@ -269,18 +218,14 @@ public class DynamicAnalysisProvider {
             stat = conn.createStatement();
             rs = stat.executeQuery(sql);
                 while (rs.next()) {
-                AnalysisVo vo2 = new AnalysisVo();
+	        	String dt = rs.getString(1);
+	            String name = rs.getString(2);
+	            String value = rs.getString(3);
                 Map<String, String> map = new HashMap<>();
-                String dt = rs.getString(1);
-                String name = rs.getString(2);
-                String value = rs.getString(3);
-                dtSet.add(dt);
-                map.put(dt, name.trim());
-                dtNameList.add(map);
-                vo2.setDt(dt);
-                vo2.setName(name.trim());
-                vo2.setValue(value);
-                voList.add(vo2);
+                map.put("dt",dt);
+                map.put("name",name);
+                map.put("value",value);
+                resultList.add(map);
             }
         } catch (Exception e) {
             throw new Exception("ERROR:" + e.getMessage(), e);
@@ -292,118 +237,67 @@ public class DynamicAnalysisProvider {
                 e.printStackTrace();
             }
         }
-
-        //
-        Map<String, List> m = AnalysisCommonUtils.mapCombine(dtNameList);
-        if (dimension != null && !"".equals(dimension)) {
-            if (sqlWhere.contains(dimension)) {
-                List nameList = new LinkedList();
-                for (Map.Entry<String, List> entry : m.entrySet()) {
-                    for (Object value : entry.getValue()) {
-                        if (!nameList.contains(value)) {
-                            nameList.add(value);
-                        }
-                    }
-                    subString = (String[]) nameList.toArray(new String[nameList.size()]);
-                    subLength = subString.length;
-                /*if (entry.getValue().size() > nameListSize) {
-                    nameListSize = entry.getValue().size();
-                    subString = (String[]) entry.getValue().toArray(new String[entry.getValue().size()]);
-                    subLength = subString.length;
-                }*/
-                }
-            }
-        }
-        for (Map.Entry<String, List> entry : m.entrySet()) {
-            String dt = entry.getKey();
-            List<String> nameList = entry.getValue();
-            if (nameList.size() <= subLength) {
-                List<String> newList = new ArrayList<>();
-                if (dimension != null || !"".equals(dimension)) {
-                    for (String sub : subString) {
-                        if (!nameList.contains(sub.trim())) {
-                            newList.add(sub.trim());
-                        }
-                    }
-                }
-                for (String xx : newList) {
-                    AnalysisVo vo2 = new AnalysisVo();
-                    vo2.setDt(dt);
-                    vo2.setName(xx.trim());
-                    vo2.setValue("0");
-                    voList.add(vo2);
-                }
-            }
-        }
-
-
-
         List<String> everyDateList = AnalysisCommonUtils.dateSplit(begin_date, end_date, dateSql);
-        if ("hours".equals(dateSql)) {
-            daysLen = 24;
+        if(StringUtils.isNotEmpty(dateSql) && !Objects.equals("hours", dateSql)){
+        	Collections.sort(everyDateList,((o1, o2) -> {
+            	return o1.compareTo(o2);
+            }));
         }
-        if (voList.size() < daysLen * subLength) {
-            for (String day : everyDateList) {
-                if (!dtSet.contains(day)) {
-                    for (String sub : subString) {
-                        AnalysisVo vo2 = new AnalysisVo();
-                        vo2.setDt(day);
-                        if (null == dimension || "" == dimension) {
-                            vo2.setName(module);
-                        } else {
-                            vo2.setName(sub.trim());
-                        }
-                        vo2.setValue("0");
-                        voList.add(vo2);
-                    }
-                }
-            }
-        }
-
-        voList = AnalysisCommonUtils.sortList(voList, "dt", false);
-        List<Map> aggMap = new ArrayList<>();
-        List<String> xList = new ArrayList<>();
-        for (AnalysisVo vo : voList) {
-            Map<String, String> map = new HashMap<>();
-            map.put(vo.getName(), vo.getValue());
-            xList.add(vo.getDt());
-            aggMap.add(map);
-        }
-        xList = AnalysisCommonUtils.removeDuplicate(xList);
-
-        Map<String, List> map = AnalysisCommonUtils.mapCombine(aggMap);
-        List<AnalysisListVo> dvoList = new ArrayList<>();
-        for (Map.Entry<String, List> entry : map.entrySet()) {
-            AnalysisListVo dvo = new AnalysisListVo();
-            List<String> nameList = new ArrayList<>();
-            List<String> valueList = new ArrayList<>();
-            nameList.add(entry.getKey());
-            for (int i = 0; i < entry.getValue().size(); i++) {
-                valueList.add((String) entry.getValue().get(i));
-            }
-            dvo.setNames(nameList);
-            dvo.setValues(valueList);
-            dvoList.add(dvo);
-        }
-        AnalysisCommonUtils.sortValue(dvoList);
-        Map<List<String>,AnalysisListVo> dvoListMap = dvoList.stream().collect(Collectors.toMap( AnalysisListVo::getNames,vo->vo));
-        Map<String,AnalysisListVo> truedvoListMap= Maps.newHashMapWithExpectedSize(dvoListMap.size());
-        dvoListMap.forEach((k,v)->{
-        	truedvoListMap.put(String.join("-",k), v);
-        });
-        List<Map.Entry<String,AnalysisListVo>> lstEntry=new ArrayList<>(truedvoListMap.entrySet());
-        Collections.sort(lstEntry,((o1, o2) -> {
-            return o1.getKey().compareTo(o2.getKey());
+        
+        //分组不就完事了吗
+        Map<String,List<Map<String,String>>> resultGroup = resultList.stream().collect(Collectors.groupingBy(r->r.get("name")));
+        List<String> resultDimensionList  = Lists.newArrayList(resultGroup.keySet());
+        if(!CollectionUtils.isEmpty(resultDimensionList)){
+        	for(String rv : resultDimensionList){
+        		if(!dimensionList.contains(rv)){
+        			dimensionList.add(rv);
+        		}
+        	}
+        }        
+        Collections.sort(dimensionList,((o1, o2) -> {
+        	Integer o11 = (Integer)o1.hashCode();
+        	Integer o22 = (Integer)o1.hashCode();
+        	return -o11.compareTo(o22);
         }));
-        List<AnalysisListVo> sortDvoList = Lists.newArrayList();
-        lstEntry.forEach(o->{
-            sortDvoList.add(o.getValue());
+        LOG.info("everyDateList-{}",JSON.toJSONString(everyDateList));
+        List<AnalysisListVo> dvoList = new ArrayList<>();
+        dimensionList.forEach(d->{
+        	dvoList.add(packageData(d,resultGroup,everyDateList));
         });
         AnalysisLineChartVo dyo = new AnalysisLineChartVo();
-        dyo.setSeries(sortDvoList);
-        dyo.setX_axis(xList);
+        dyo.setSeries(dvoList);
+        dyo.setX_axis(everyDateList);
         return dyo;
     }
+
+	private AnalysisListVo packageData(String d, Map<String, List<Map<String, String>>> resultGroup,
+			List<String> everyDateList) {
+		AnalysisListVo vo = new AnalysisListVo();
+		List<String> names = Lists.newArrayList(d);
+		List<String> values = Lists.newArrayListWithExpectedSize(everyDateList.size());
+		List<Map<String, String>> valuesList  = resultGroup.get(d);
+		Map<String,String> valuesMap = Maps.newHashMap();
+		if(!CollectionUtils.isEmpty(valuesList)){
+			valuesMap = Maps.newHashMapWithExpectedSize(valuesList.size());
+			for(Map<String,String> r : valuesList){
+				valuesMap.put(r.get("dt"), r.get("value"));
+			}
+		}
+		for(String dt : everyDateList){
+			if(!CollectionUtils.isEmpty(valuesMap)){
+				if(StringUtils.isNotEmpty(valuesMap.get(dt))){
+					values.add(valuesMap.get(dt));
+				}else{
+					values.add("0");
+				}
+			}else{
+				values.add("0");
+			}
+		}
+		vo.setNames(names);
+		vo.setValues(values);
+		return vo;
+	}
 
 
     /*private List<String> getDimensionSub(String dimension) throws Exception {
@@ -428,5 +322,14 @@ public class DynamicAnalysisProvider {
         }
         return subList;
     }*/
+	
+	public static void main(String[] args){
+		List<String> xx = Lists.newArrayList("2019-07-23","2019-07-22");
+		Collections.sort(xx,((o1, o2) -> {
+        	return o1.compareTo(o2);
+        }));
+		System.out.println(xx.toString());
+		
+	}
 
 }
