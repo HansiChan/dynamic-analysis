@@ -253,13 +253,25 @@ public class DynamicAnalysisProvider {
         			dimensionList.add(rv);
         		}
         	}
-        }        
+        }  
+        List<String> others = Lists.newArrayList();
+        if(dimensionList.contains("其他")){
+        	others.add("其他");
+        	dimensionList.remove("其他");
+        }
+        if(dimensionList.contains("其它")){
+        	others.add("其它");
+        	dimensionList.remove("其它");
+        }
         Collections.sort(dimensionList,((o1, o2) -> {
         	Integer o11 = (Integer)o1.hashCode();
         	Integer o22 = (Integer)o1.hashCode();
         	return -o11.compareTo(o22);
         }));
         LOG.info("everyDateList-{}",JSON.toJSONString(everyDateList));
+        if(!CollectionUtils.isEmpty(others)){
+        	dimensionList.addAll(others);
+        }
         List<AnalysisListVo> dvoList = new ArrayList<>();
         dimensionList.forEach(d->{
         	dvoList.add(packageData(d,resultGroup,everyDateList));
