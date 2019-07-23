@@ -7,6 +7,7 @@ import com.dachen.dynamicanalysis.pojo.AnalysisListVo;
 import com.dachen.dynamicanalysis.pojo.AnalysisVo;
 import com.dachen.util.ImpalaUtil;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -179,6 +180,8 @@ public class DynamicAnalysisProvider {
                 e.printStackTrace();
             }
         }
+       
+        
 
         aList.put("duration", begin_date + "|" + end_date);
         aList.put("series", sList);
@@ -383,10 +386,22 @@ public class DynamicAnalysisProvider {
             dvoList.add(dvo);
         }
         AnalysisCommonUtils.sortValue(dvoList);
+        Map<List<String>,AnalysisListVo> dvoListMap = dvoList.stream().collect(Collectors.toMap( AnalysisListVo::getNames,vo->vo));
+        Map<String,AnalysisListVo> truedvoListMap= Maps.newHashMapWithExpectedSize(dvoListMap.size());
+        dvoListMap.forEach((k,v)->{
+        	truedvoListMap.put(String.join("-",k), v);
+        });
+        List<Map.Entry<String,AnalysisListVo>> lstEntry=new ArrayList<>(truedvoListMap.entrySet());
+        Collections.sort(lstEntry,((o1, o2) -> {
+            return o1.getKey().compareTo(o2.getKey());
+        }));
+        List<AnalysisListVo> sortDvoList = Lists.newArrayList();
+        lstEntry.forEach(o->{
+            sortDvoList.add(o.getValue());
+        });
         AnalysisLineChartVo dyo = new AnalysisLineChartVo();
-        dyo.setSeries(dvoList);
+        dyo.setSeries(sortDvoList);
         dyo.setX_axis(xList);
-
         return dyo;
     }
 
