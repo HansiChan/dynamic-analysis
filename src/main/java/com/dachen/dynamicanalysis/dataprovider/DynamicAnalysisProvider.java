@@ -247,13 +247,7 @@ public class DynamicAnalysisProvider {
         //分组不就完事了吗
         Map<String,List<Map<String,String>>> resultGroup = resultList.stream().collect(Collectors.groupingBy(r->r.get("name")));
         List<String> resultDimensionList  = Lists.newArrayList(resultGroup.keySet());
-        if(!CollectionUtils.isEmpty(resultDimensionList)){
-        	for(String rv : resultDimensionList){
-        		if(!dimensionList.contains(rv)){
-        			dimensionList.add(rv);
-        		}
-        	}
-        }  
+        dimensionList =  resultDimensionList;
         List<String> others = Lists.newArrayList();
         if(dimensionList.contains("其他")){
         	others.add("其他");
