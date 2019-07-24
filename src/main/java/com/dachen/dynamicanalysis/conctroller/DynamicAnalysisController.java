@@ -93,6 +93,8 @@ public class DynamicAnalysisController {
                     	String x =temp.split(" ")[0];
                         temp = temp + " or " + x + " is null  " ;
                         filterList.add("("+temp+")");
+                    }else{
+                    	filterList.add(temp);
                     }
         		}
         		if(!CollectionUtils.isEmpty(filterList)){
