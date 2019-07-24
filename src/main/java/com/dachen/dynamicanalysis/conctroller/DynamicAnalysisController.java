@@ -8,9 +8,11 @@ import com.dachen.dynamicanalysis.service.ExcelExportService;
 import com.dachen.dynamicanalysis.service.ImpalaDataService;
 import com.dachen.util.JSONMessage;
 import com.dachen.util.PinYinUtil;
+import com.google.common.collect.Lists;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -55,8 +57,9 @@ public class DynamicAnalysisController {
         } else if ("month".equals(dimension_date)){
             dateSql = "months";
         }
+        StringBuffer filter = new StringBuffer("");
         String sqlWhere = "";
-        if (!"".equals(filter_condition) && filter_condition != null) {
+       /* if (!"".equals(filter_condition) && filter_condition != null) {
             sqlWhere = sqlWhere + filter_condition.replace("where", " and (") + ") ";
             if(filter_condition.contains("其他")){
                 String x =filter_condition.split(" ")[1];
@@ -65,8 +68,43 @@ public class DynamicAnalysisController {
                 String x =filter_condition.split(" ")[1];
                 sqlWhere = filter_condition.replace("where", " and (") + " or " + x + " is null" + ") ";
             }
+        }*/
+        
+        if (!"".equals(filter_condition) && filter_condition != null) {
+        	filter_condition = filter_condition.replace("where", "");
+        	String orIsAnd = "";
+        	if(filter_condition.contains(" or ")){
+        		orIsAnd = " or ";
+        	}else if(filter_condition.contains(" and ")){
+        		orIsAnd = " and ";
+        	}else{
+        		orIsAnd = " other ";
+        	}
+        	if(StringUtils.isNotEmpty(filter_condition)){
+        		String[] filter_conditions = filter_condition.split(orIsAnd);
+        		List<String> filterList = Lists.newArrayListWithExpectedSize(filter_conditions.length);
+        		for(String f : filter_conditions){
+        			String temp  = f.trim();
+        			if(temp.contains("其他")){
+                        String x =temp.split(" ")[0];
+                        temp = temp.replace("'其他'","'','NULL','未知'") + " or " + x + " is null ";
+                        filterList.add("("+temp+")");
+                    } else if(temp.contains("无") || f.contains("not in")){
+                    	String x =temp.split(" ")[0];
+                        temp = temp + " or " + x + " is null  " ;
+                        filterList.add("("+temp+")");
+                    }
+        		}
+        		if(!CollectionUtils.isEmpty(filterList)){
+        			if(filterList.size()>1){
+        				filter.append(" and ").append("(").append(String.join(" "+orIsAnd+" ", filterList)).append(")");
+        			}else{
+        				filter.append(" and ").append("(").append(filterList.get(0)).append(")");
+        			}
+    			}
+        	}
         }
-
+        if(filter.length()>0) sqlWhere = filter.toString();
         String sqlTable = "";
         if ("active".equals(module)) {
             sqlTable = "dw_user_login_r";
