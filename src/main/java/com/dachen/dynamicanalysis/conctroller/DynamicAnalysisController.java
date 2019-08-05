@@ -129,7 +129,7 @@ public class DynamicAnalysisController {
         	 String pName = PinYinUtil.getFullSpell(cluster);
         	 sqlJoin.append(" join (");
         	 sqlJoin.append(" select DISTINCT userid from bds.bds_user_profile where 1=1 and p_name='").append(pName).append("'");
-        	 sqlJoin.append(" ) ").append("t_"+pName).append(" on d.userid = ").append("t_"+pName).append(".").append("userid ");
+        	 sqlJoin.append(" ) ").append("`t_"+pName).append("` on d.userid = ").append("`t_"+pName).append("`.").append("userid ");
         }
         sqlJoin.append(")");
         
