@@ -270,6 +270,25 @@ public class DynamicAnalysisProvider {
         dimensionList.forEach(d->{
         	dvoList.add(packageData(d,resultGroup,everyDateList));
         });
+        //排序dvoList
+        Collections.sort(dvoList,new Comparator<AnalysisListVo>() {
+			@Override
+			public int compare(AnalysisListVo o1, AnalysisListVo o2) {
+				int num1 = 0;
+				int num2 = 0;
+				if(Objects.nonNull(o1) && !CollectionUtils.isEmpty(o1.getValues()) && o1.getValues().size()>0){
+					if(StringUtils.isNotEmpty(o1.getValues().get(0))){
+						num1 = Integer.parseInt(o1.getValues().get(0));
+					}
+				}
+				if(Objects.nonNull(o2) && !CollectionUtils.isEmpty(o2.getValues()) && o2.getValues().size()>0){
+					if(StringUtils.isNotEmpty(o2.getValues().get(0))){
+						num2 = Integer.parseInt(o2.getValues().get(0));
+					}
+				}
+				return num2-num1;
+			}
+		}); // 按第一个值排序
         AnalysisLineChartVo dyo = new AnalysisLineChartVo();
         dyo.setSeries(dvoList);
         dyo.setX_axis(everyDateList);
