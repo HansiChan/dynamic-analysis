@@ -278,12 +278,12 @@ public class DynamicAnalysisProvider {
 				int num2 = 0;
 				if(Objects.nonNull(o1) && !CollectionUtils.isEmpty(o1.getValues()) && o1.getValues().size()>0){
 					if(StringUtils.isNotEmpty(o1.getValues().get(o1.getValues().size()-1))){
-						num1 = Integer.parseInt(o1.getValues().get(o1.getValues().size()));
+						num1 = Integer.parseInt(o1.getValues().get(o1.getValues().size()-1));
 					}
 				}
 				if(Objects.nonNull(o2) && !CollectionUtils.isEmpty(o2.getValues()) && o2.getValues().size()>0){
-					if(StringUtils.isNotEmpty(o2.getValues().get(o2.getValues().size()))){
-						num2 = Integer.parseInt(o2.getValues().get(o2.getValues().size()));
+					if(StringUtils.isNotEmpty(o2.getValues().get(o2.getValues().size()-1))){
+						num2 = Integer.parseInt(o2.getValues().get(o2.getValues().size()-1));
 					}
 				}
 				return num2-num1;
